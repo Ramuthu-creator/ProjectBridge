@@ -69,6 +69,15 @@ const Register = () => {
                   </div>
                   
                   <div className="form-group">
+                      <label htmlFor="role">I am a...</label>
+                      <select id="role" name="role" defaultValue="" required>
+                          <option value="" disabled>Select your role</option>
+                          <option value="student">Student / Creator</option>
+                          <option value="investor">Investor / Sponsor</option>
+                      </select>
+                  </div>
+                  
+                  <div className="form-group">
                       <label htmlFor="password">Password</label>
                       <input type="password" id="password" name="password" placeholder="••••••••" required />
                   </div>
