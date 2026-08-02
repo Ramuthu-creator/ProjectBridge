@@ -590,7 +590,7 @@ footer {
     color: var(--text-color);
 }
 
-.form-group input {
+.form-group input, .form-group select {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--border-color);
     padding: 0.8rem 1rem;
@@ -601,11 +601,16 @@ footer {
     transition: all 0.3s ease;
 }
 
-.form-group input:focus {
+.form-group input:focus, .form-group select:focus {
     outline: none;
     border-color: var(--primary);
     background: rgba(255, 255, 255, 0.08);
     box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.form-group select option {
+    background: #111;
+    color: white;
 }
 
 .form-group input::placeholder {
