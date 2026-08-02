@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import Footer from '../components/common/Footer';
 
 const Home = () => {
   useEffect(() => {
@@ -160,34 +161,7 @@ const Home = () => {
           </section>
       </main>
 
-      <footer>
-          <div className="footer-content">
-              <div className="footer-brand">
-                  <Link to="/" className="logo">
-                      <div className="logo-icon"></div>
-                      ProjectBridge
-                  </Link>
-                  <p>Connecting ideas, teams, and execution seamlessly.</p>
-              </div>
-              <div className="footer-links">
-                  <div className="link-group">
-                      <h4>Product</h4>
-                      <a href="#">Features</a>
-                      <a href="#">Integrations</a>
-                      <a href="#">Pricing</a>
-                  </div>
-                  <div className="link-group">
-                      <h4>Company</h4>
-                      <a href="#">About Us</a>
-                      <a href="#">Careers</a>
-                      <a href="#">Contact</a>
-                  </div>
-              </div>
-          </div>
-          <div className="footer-bottom">
-              <p>&copy; 2026 ProjectBridge. All rights reserved.</p>
-          </div>
-      </footer>
+      <Footer />
     </>
   );
 };
