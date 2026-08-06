@@ -1,18 +1,16 @@
-import React, { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { login } from '../services/api';
 
 const Login = () => {
-  useEffect(() => {
-    // Add auth-page class to body when mounted
-    document.body.classList.add('auth-page');
-    
-    // Intersection Observer for fade-in animations
-    const observerOptions = {
-        root: null,
-        rootMargin: '0px',
-        threshold: 0.1
-    };
+  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
+  useEffect(() => {
+    document.body.classList.add('auth-page');
+    const observerOptions = { root: null, rootMargin: '0px', threshold: 0.1 };
     const observer = new IntersectionObserver((entries, observer) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -21,17 +19,38 @@ const Login = () => {
             }
         });
     }, observerOptions);
-
     const animatedElements = document.querySelectorAll('.fade-in-up');
-    animatedElements.forEach(el => {
-        observer.observe(el);
-    });
+    animatedElements.forEach(el => observer.observe(el));
 
     return () => {
         document.body.classList.remove('auth-page');
         observer.disconnect();
     };
   }, []);
+
+  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setIsLoading(true);
+    
+    try {
+      const data = await login(formData);
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('role', data.role);
+      
+      if (data.role === 'Student') {
+        navigate('/student-dashboard');
+      } else if (data.role === 'Investor') {
+        navigate('/investor-dashboard');
+      }
+    } catch (err) {
+      setError(err.message || 'Login failed. Please check your credentials.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <>
@@ -57,15 +76,17 @@ const Login = () => {
                   <p>Enter your details to access your account.</p>
               </div>
               
-              <form className="auth-form" action="#" method="POST">
+              {error && <div className="error-message" style={{color: 'red', marginBottom: '1rem', textAlign: 'center'}}>{error}</div>}
+              
+              <form className="auth-form" onSubmit={handleSubmit}>
                   <div className="form-group">
                       <label htmlFor="email">Email Address</label>
-                      <input type="email" id="email" name="email" placeholder="you@example.com" required />
+                      <input type="email" id="email" name="email" value={formData.email} onChange={handleChange} placeholder="you@example.com" required />
                   </div>
                   
                   <div className="form-group">
                       <label htmlFor="password">Password</label>
-                      <input type="password" id="password" name="password" placeholder="••••••••" required />
+                      <input type="password" id="password" name="password" value={formData.password} onChange={handleChange} placeholder="••••••••" required />
                   </div>
                   
                   <div className="form-options">
@@ -76,7 +97,9 @@ const Login = () => {
                       <a href="#" className="forgot-password">Forgot password?</a>
                   </div>
                   
-                  <button type="submit" className="btn btn-primary btn-full">Sign In</button>
+                  <button type="submit" className="btn btn-primary btn-full" disabled={isLoading}>
+                    {isLoading ? 'Signing In...' : 'Sign In'}
+                  </button>
               </form>
               
               <div className="auth-footer">

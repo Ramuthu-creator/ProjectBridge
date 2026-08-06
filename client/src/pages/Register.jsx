@@ -1,18 +1,16 @@
-import React, { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { register } from '../services/api';
 
 const Register = () => {
+    const [formData, setFormData] = useState({ name: '', email: '', password: '', role: '' });
+    const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const navigate = useNavigate();
+
     useEffect(() => {
-        // Add auth-page class to body when mounted
         document.body.classList.add('auth-page');
-
-        // Intersection Observer for fade-in animations
-        const observerOptions = {
-            root: null,
-            rootMargin: '0px',
-            threshold: 0.1
-        };
-
+        const observerOptions = { root: null, rootMargin: '0px', threshold: 0.1 };
         const observer = new IntersectionObserver((entries, observer) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -21,17 +19,37 @@ const Register = () => {
                 }
             });
         }, observerOptions);
-
         const animatedElements = document.querySelectorAll('.fade-in-up');
-        animatedElements.forEach(el => {
-            observer.observe(el);
-        });
+        animatedElements.forEach(el => observer.observe(el));
 
         return () => {
             document.body.classList.remove('auth-page');
             observer.disconnect();
         };
     }, []);
+
+    const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError('');
+        setIsLoading(true);
+        
+        try {
+            // Note: The backend schema requires companyName for Investors. We send a placeholder here to prevent validation errors.
+            const dataToSubmit = { ...formData };
+            if (dataToSubmit.role === 'Investor') {
+                dataToSubmit.companyName = 'Independent Investor'; 
+            }
+            
+            await register(dataToSubmit);
+            navigate('/login');
+        } catch (err) {
+            setError(err.message || 'Registration failed. Please try again.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     return (
         <>
@@ -57,32 +75,36 @@ const Register = () => {
                         <p>Join ProjectBridge to streamline your workflow.</p>
                     </div>
 
-                    <form className="auth-form" action="#" method="POST">
+                    {error && <div className="error-message" style={{color: 'red', marginBottom: '1rem', textAlign: 'center'}}>{error}</div>}
+
+                    <form className="auth-form" onSubmit={handleSubmit}>
                         <div className="form-group">
                             <label htmlFor="name">Full Name</label>
-                            <input type="text" id="name" name="name" placeholder="John Doe" required />
+                            <input type="text" id="name" name="name" value={formData.name} onChange={handleChange} placeholder="John Doe" required />
                         </div>
 
                         <div className="form-group">
                             <label htmlFor="email">Email Address</label>
-                            <input type="email" id="email" name="email" placeholder="you@example.com" required />
+                            <input type="email" id="email" name="email" value={formData.email} onChange={handleChange} placeholder="you@example.com" required />
                         </div>
 
                         <div className="form-group">
                             <label htmlFor="role">I am a...</label>
-                            <select id="role" name="role" defaultValue="" required>
+                            <select id="role" name="role" value={formData.role} onChange={handleChange} required>
                                 <option value="" disabled>Select your role</option>
-                                <option value="student">Student</option>
-                                <option value="investor">Investor</option>
+                                <option value="Student">Student</option>
+                                <option value="Investor">Investor</option>
                             </select>
                         </div>
 
                         <div className="form-group">
                             <label htmlFor="password">Password</label>
-                            <input type="password" id="password" name="password" placeholder="••••••••" required />
+                            <input type="password" id="password" name="password" value={formData.password} onChange={handleChange} placeholder="••••••••" required />
                         </div>
 
-                        <button type="submit" className="btn btn-primary btn-full">Sign Up</button>
+                        <button type="submit" className="btn btn-primary btn-full" disabled={isLoading}>
+                            {isLoading ? 'Creating Account...' : 'Sign Up'}
+                        </button>
                     </form>
 
                     <div className="auth-footer">
