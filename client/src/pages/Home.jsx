@@ -71,11 +71,10 @@ const Home = () => {
               <nav className="nav-links">
                   <a href="#features" onClick={(e) => scrollToSection(e, '#features')}>Features</a>
                   <a href="#solutions" onClick={(e) => scrollToSection(e, '#solutions')}>Solutions</a>
-                  <a href="#pricing" onClick={(e) => scrollToSection(e, '#pricing')}>Pricing</a>
               </nav>
               <div className="nav-actions">
                   <Link to="/login" className="btn btn-ghost">Log In</Link>
-                  <a href="#" className="btn btn-primary">Get Started</a>
+                  <Link to="/register" className="btn btn-primary">Get Started</Link>
               </div>
           </div>
       </header>
@@ -84,11 +83,11 @@ const Home = () => {
           <section className="hero">
               <div className="hero-content fade-in-up">
                   <div className="badge">✨ The new standard for collaboration</div>
-                  <h1>Bridge the gap between <span className="gradient-text">Ideas and Execution</span></h1>
-                  <p>Seamlessly connect your teams, automate workflows, and deliver projects faster with our intuitive platform designed for modern enterprises.</p>
+                  <h1>Bridge the gap between <span className="gradient-text">Student Innovation and Capital</span></h1>
+                  <p>The exclusive platform where ambitious students secure IP-protected funding, and angel investors discover the next big thing before it hits the mainstream market.</p>
                   <div className="hero-cta">
-                      <a href="#" className="btn btn-primary btn-large">Start for free</a>
-                      <a href="#" className="btn btn-secondary btn-large">
+                      <Link to="/register" className="btn btn-primary btn-large">Start for free</Link>
+                      <a href="#demo" className="btn btn-secondary btn-large">
                           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
                           Watch Demo
                       </a>
@@ -119,33 +118,61 @@ const Home = () => {
 
           <section id="features" className="features">
               <div className="section-header fade-in-up">
-                  <h2>Everything you need to <span className="gradient-text">succeed</span></h2>
-                  <p>Powerful tools designed to eliminate friction and keep your team aligned from start to finish.</p>
+                  <h2>Designed for <span className="gradient-text">Breakthroughs</span></h2>
+                  <p>Everything you need to confidently share your prototype or discover your next investment.</p>
               </div>
               
               <div className="feature-grid">
                   <div className="feature-card glass-panel fade-in-up delay-1">
                       <div className="feature-icon" style={{ background: 'rgba(99, 102, 241, 0.1)', color: '#818cf8' }}>
-                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
                       </div>
-                      <h3>Smart Workflows</h3>
-                      <p>Automate repetitive tasks and set up triggers that keep your projects moving forward without manual intervention.</p>
+                      <h3>IP Protection & Proof of Work</h3>
+                      <p>Every student upload is secured with a SHA-256 hash timestamp. Prove mathematically that the idea was yours, exactly when you uploaded it.</p>
                   </div>
                   
                   <div className="feature-card glass-panel fade-in-up delay-2">
                       <div className="feature-icon" style={{ background: 'rgba(168, 85, 247, 0.1)', color: '#c084fc' }}>
-                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
                       </div>
-                      <h3>Real-time Insights</h3>
-                      <p>Make data-driven decisions with live dashboards and custom reports that show exactly where your resources are going.</p>
+                      <h3>Curated Deal Flow</h3>
+                      <p>Investors can filter projects by industry sector and technology stack to find exactly the types of innovations they want to fund.</p>
                   </div>
                   
                   <div className="feature-card glass-panel fade-in-up delay-3">
                       <div className="feature-icon" style={{ background: 'rgba(236, 72, 153, 0.1)', color: '#f472b6' }}>
-                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
                       </div>
-                      <h3>Seamless Collaboration</h3>
-                      <p>Bring your team, clients, and stakeholders together in one unified workspace with threaded conversations.</p>
+                      <h3>One-Click Bookmarking</h3>
+                      <p>Found a project you love? Investors can save projects to their personal dashboard to review later and request meetings directly.</p>
+                  </div>
+              </div>
+          </section>
+
+          <section id="solutions" className="features" style={{ paddingTop: '2rem' }}>
+              <div className="section-header fade-in-up">
+                  <h2>Two paths. <span className="gradient-text">One Ecosystem.</span></h2>
+              </div>
+              <div className="feature-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))' }}>
+                  <div className="feature-card glass-panel fade-in-up delay-1" style={{ borderTop: '4px solid #6366f1' }}>
+                      <h3 style={{ fontSize: '1.8rem', marginBottom: '1rem' }}>For Students 🎓</h3>
+                      <p style={{ marginBottom: '1rem', fontSize: '1.1rem' }}>Stop waiting until graduation to get your ideas funded. Bypass traditional gatekeepers and get your MVP directly in front of vetted angel investors.</p>
+                      <ul style={{ color: 'var(--text-muted)', paddingLeft: '1.5rem', marginBottom: '2rem', lineHeight: '2' }}>
+                          <li>Upload unlimited projects</li>
+                          <li>Cryptographic IP protection</li>
+                          <li>Direct meeting requests from investors</li>
+                      </ul>
+                      <Link to="/register" className="btn btn-primary" style={{ width: '100%' }}>Join as Student</Link>
+                  </div>
+                  <div className="feature-card glass-panel fade-in-up delay-2" style={{ borderTop: '4px solid #ec4899' }}>
+                      <h3 style={{ fontSize: '1.8rem', marginBottom: '1rem' }}>For Investors 💼</h3>
+                      <p style={{ marginBottom: '1rem', fontSize: '1.1rem' }}>Gain early access to high-potential, university-level talent and vetted prototypes before they hit the mainstream venture capital market.</p>
+                      <ul style={{ color: 'var(--text-muted)', paddingLeft: '1.5rem', marginBottom: '2rem', lineHeight: '2' }}>
+                          <li>Browse exclusive student prototypes</li>
+                          <li>Advanced filtering by industry/tech</li>
+                          <li>Personalized saved projects dashboard</li>
+                      </ul>
+                      <Link to="/register" className="btn btn-secondary" style={{ width: '100%' }}>Join as Investor</Link>
                   </div>
               </div>
           </section>
@@ -155,7 +182,7 @@ const Home = () => {
                   <h2>Ready to transform how you work?</h2>
                   <p>Join thousands of forward-thinking teams already using ProjectBridge.</p>
                   <div className="cta-buttons">
-                      <a href="#" className="btn btn-primary btn-large">Get Started Today</a>
+                      <Link to="/register" className="btn btn-primary btn-large">Get Started Today</Link>
                   </div>
               </div>
           </section>

@@ -57,13 +57,21 @@ const ProjectDetails = ({ project, onClose, isSaved, onToggleSave }) => {
             </p>
 
             <h3 className="inv-section-title">Pitch video</h3>
-            <div className="inv-video-placeholder">
-              <div className="inv-video-play">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none" style={{ marginLeft: '4px' }}>
-                  <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                </svg>
+            {project.demoVideoUrl ? (
+              <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border-color)', background: '#000' }}>
+                <video 
+                  controls 
+                  src={`http://localhost:5001${project.demoVideoUrl}`} 
+                  style={{ width: '100%', display: 'block', maxHeight: '400px', objectFit: 'contain' }}
+                >
+                  Your browser does not support the video tag.
+                </video>
               </div>
-            </div>
+            ) : (
+              <div className="inv-video-placeholder" style={{ opacity: 0.5 }}>
+                <p style={{ marginTop: '0', textAlign: 'center', color: '#9ca3af' }}>No pitch video provided.</p>
+              </div>
+            )}
           </div>
 
           {/* Right Column / Side Panel */}

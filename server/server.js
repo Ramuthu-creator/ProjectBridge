@@ -4,6 +4,7 @@ dns.setServers(['8.8.8.8', '1.1.1.1']);
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const path = require('path');
 
 const authRoutes = require('./routes/authRoutes');
 const projectRoutes = require('./routes/projectRoutes');
@@ -21,6 +22,9 @@ app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/student', studentRoutes);
 app.use('/api/investors', investorRoutes);
+
+// Static file serving for uploads (videos, etc)
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Database Connection
 const PORT = process.env.PORT || 5000;
