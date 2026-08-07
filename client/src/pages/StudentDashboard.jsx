@@ -2,19 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { uploadProject, getMyProjects } from '../services/api';
 
+// Components
+import DashboardOverview from '../components/student/DashboardOverview';
+import UploadProjectForm from '../components/student/UploadProjectForm';
+import StudentProfile from '../components/student/StudentProfile';
+import '../components/student/student.css'; // Import the new layout styles
+
 const StudentDashboard = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    industrySector: '',
-    technologyStack: '',
-    projectReadinessLevel: 'Idea'
-  });
-  const [status, setStatus] = useState('');
-  const [ipProof, setIpProof] = useState(null);
+  const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard', 'upload', 'profile'
   const [studentId, setStudentId] = useState('');
+  const [studentName, setStudentName] = useState('Student User');
+  const [studentEmail, setStudentEmail] = useState('');
   const [myProjects, setMyProjects] = useState([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const [ipProof, setIpProof] = useState(null); // Used to show success screen
 
   const loadProjects = async (token) => {
     try {
@@ -36,6 +38,8 @@ const StudentDashboard = () => {
       const payload = JSON.parse(atob(token.split('.')[1]));
       if (payload.user && payload.user.id) {
         setStudentId(payload.user.id);
+        if (payload.user.name) setStudentName(payload.user.name);
+        if (payload.user.email) setStudentEmail(payload.user.email);
       }
     } catch (e) {
       console.error('Failed to decode token');
@@ -52,11 +56,8 @@ const StudentDashboard = () => {
     navigate('/login');
   };
 
-  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setStatus('Uploading...');
+  const handleUploadProject = async (formData) => {
+    setIsUploading(true);
     setIpProof(null);
     try {
       const token = localStorage.getItem('token');
@@ -67,97 +68,157 @@ const StudentDashboard = () => {
       };
       
       const response = await uploadProject(projectData, token);
-      setStatus('Success! Project Uploaded.');
+      
       setIpProof({
         hash: response.project.sha256Hash,
         timestamp: response.project.uploadTimestamp
       });
-      // Reset form
-      setFormData({ title: '', description: '', industrySector: '', technologyStack: '', projectReadinessLevel: 'Idea' });
       
       // Refresh the list
       loadProjects(token);
     } catch (err) {
-      setStatus(`Error: ${err.message}`);
+      alert(`Error uploading project: ${err.message}`);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const renderContent = () => {
+    if (ipProof && activeTab === 'upload') {
+      return (
+        <div className="secured-container">
+          <div className="secured-icon">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+          </div>
+          <h2>Project Secured!</h2>
+          <p>Your project has been successfully uploaded and your IP has been protected.</p>
+          
+          <div style={{ textAlign: 'left', marginBottom: '1rem' }}>
+            <strong>Upload Timestamp:</strong> {new Date(ipProof.timestamp).toLocaleString()}
+          </div>
+          
+          <div style={{ textAlign: 'left', marginBottom: '0.5rem' }}>
+            <strong>SHA-256 Hash Proof:</strong>
+          </div>
+          <div className="hash-box">
+            {ipProof.hash}
+          </div>
+          
+          <p style={{ fontSize: '0.9rem', color: '#64748b' }}>
+            Save this hash! It mathematically proves your ownership of this specific project state at the time of upload.
+          </p>
+          
+          <button 
+            className="btn-new-project" 
+            style={{ margin: '2rem auto 0' }} 
+            onClick={() => {
+              setIpProof(null);
+              setActiveTab('dashboard');
+            }}
+          >
+            Back to Dashboard
+          </button>
+        </div>
+      );
+    }
+
+    switch(activeTab) {
+      case 'dashboard':
+        return <DashboardOverview projects={myProjects} onNewProject={() => setActiveTab('upload')} />;
+      case 'upload':
+        return <UploadProjectForm onSubmit={handleUploadProject} isLoading={isUploading} />;
+      case 'profile':
+        return <StudentProfile studentName={studentName} email={studentEmail} />;
+      default:
+        return <DashboardOverview projects={myProjects} onNewProject={() => setActiveTab('upload')} />;
     }
   };
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto', color: 'white' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <h1>Student Dashboard</h1>
-        <button onClick={handleLogout} className="btn btn-secondary">Logout</button>
+    <div className="student-dashboard-layout">
+      {/* Background Effects matching landing page */}
+      <div className="dashboard-bg-effects">
+          <div className="glow-orb orb-1"></div>
+          <div className="glow-orb orb-2"></div>
+          <div className="glow-orb orb-3"></div>
       </div>
 
-      <div className="glass-panel" style={{ padding: '2rem', marginBottom: '2rem' }}>
-        <h2>Upload New Project</h2>
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem' }}>Project Title</label>
-            <input type="text" name="title" value={formData.title} onChange={handleChange} required style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }} />
-          </div>
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem' }}>Description</label>
-            <textarea name="description" value={formData.description} onChange={handleChange} required style={{ width: '100%', padding: '0.5rem', minHeight: '100px', borderRadius: '4px', border: '1px solid #ccc' }} />
-          </div>
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem' }}>Industry Sector</label>
-            <input type="text" name="industrySector" value={formData.industrySector} onChange={handleChange} required style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }} placeholder="e.g. Healthcare, Fintech" />
-          </div>
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem' }}>Technology Stack (comma separated)</label>
-            <input type="text" name="technologyStack" value={formData.technologyStack} onChange={handleChange} style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }} placeholder="e.g. React, Node.js, Python" />
-          </div>
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem' }}>Project Readiness Level</label>
-            <select name="projectReadinessLevel" value={formData.projectReadinessLevel} onChange={handleChange} required style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }}>
-              <option value="Idea">Idea</option>
-              <option value="Prototype">Prototype</option>
-              <option value="MVP">MVP</option>
-              <option value="Completed">Completed</option>
-            </select>
-          </div>
-          <button type="submit" className="btn btn-primary" style={{ marginTop: '1rem', padding: '0.75rem', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Submit Project</button>
-        </form>
-        {status && <p style={{ marginTop: '1rem', fontWeight: 'bold' }}>{status}</p>}
-      </div>
-
-      <div className="glass-panel" style={{ padding: '2rem', marginBottom: '2rem' }}>
-        <h2>My Projects</h2>
-        {myProjects.length === 0 ? (
-          <p style={{ marginTop: '1rem' }}>No projects uploaded yet.</p>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
-            {myProjects.map((proj) => (
-              <div key={proj._id} style={{ padding: '1.5rem', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px', backgroundColor: 'rgba(0,0,0,0.2)' }}>
-                <h3 style={{ marginBottom: '0.5rem', color: '#60a5fa' }}>{proj.title}</h3>
-                <p style={{ marginBottom: '1rem', lineHeight: '1.5' }}><strong>Description:</strong> {proj.description}</p>
-                <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
-                  <p><strong>Sector:</strong> {proj.industrySector}</p>
-                  <p><strong>Readiness:</strong> {proj.projectReadinessLevel}</p>
-                </div>
-                <p style={{ marginBottom: '1rem' }}><strong>Tech Stack:</strong> {proj.technologyStack && proj.technologyStack.length > 0 ? proj.technologyStack.join(', ') : 'None specified'}</p>
-                <div style={{ padding: '1rem', backgroundColor: 'rgba(0,0,0,0.3)', borderRadius: '6px', borderLeft: '4px solid #4CAF50' }}>
-                  <p style={{ fontSize: '0.9rem', marginBottom: '0.5rem' }}><strong>Upload Timestamp:</strong> {new Date(proj.uploadTimestamp).toLocaleString()}</p>
-                  <p style={{ fontSize: '0.9rem', wordBreak: 'break-all', color: '#a5b4fc', fontFamily: 'monospace' }}><strong>SHA-256 Hash:</strong> {proj.sha256Hash}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {ipProof && (
-        <div className="glass-panel" style={{ padding: '2rem', marginBottom: '2rem', border: '2px solid #4CAF50', backgroundColor: 'rgba(76, 175, 80, 0.1)' }}>
-          <h3 style={{ color: '#4CAF50', marginBottom: '1rem' }}>✅ Project Secured (IP Protection)</h3>
-          <p style={{ marginBottom: '0.5rem' }}><strong>Upload Timestamp:</strong> {new Date(ipProof.timestamp).toLocaleString()}</p>
-          <p style={{ marginBottom: '0.5rem' }}><strong>SHA-256 Hash Proof:</strong></p>
-          <div style={{ padding: '1rem', backgroundColor: 'rgba(0,0,0,0.3)', borderRadius: '4px', wordBreak: 'break-all', fontFamily: 'monospace', color: '#a5b4fc', fontSize: '1.1rem' }}>
-            {ipProof.hash}
-          </div>
-          <p style={{ fontSize: '0.9rem', color: '#cbd5e1', marginTop: '1rem' }}>Save this hash! It mathematically proves your ownership of this specific project state at the time of upload.</p>
+      {/* Sidebar */}
+      <aside className="dashboard-sidebar">
+        <div className="sidebar-logo">
+          <div style={{ width: '24px', height: '24px', background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%)', borderRadius: '6px', transform: 'rotate(45deg)' }}></div>
+          ProjectBridge
         </div>
-      )}
+        
+        <nav className="sidebar-nav">
+          <div 
+            className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('dashboard'); setIpProof(null); }}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="3" width="7" height="7"></rect>
+              <rect x="14" y="3" width="7" height="7"></rect>
+              <rect x="14" y="14" width="7" height="7"></rect>
+              <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+            Dashboard
+          </div>
+          
+          <div 
+            className={`nav-item ${activeTab === 'upload' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('upload'); setIpProof(null); }}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Upload Project
+          </div>
+          
+          <div 
+            className={`nav-item ${activeTab === 'profile' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('profile'); setIpProof(null); }}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            My Profile
+          </div>
+
+          <div className="nav-item logout" onClick={handleLogout}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+            Logout
+          </div>
+        </nav>
+      </aside>
+
+      {/* Main Content Area */}
+      <main className="dashboard-main">
+        <header className="dashboard-header">
+          <h1>
+            {activeTab === 'dashboard' && 'Dashboard Overview'}
+            {activeTab === 'upload' && !ipProof && 'Upload Project'}
+            {activeTab === 'upload' && ipProof && 'Project Secured'}
+            {activeTab === 'profile' && 'My Profile'}
+          </h1>
+          <div className="user-indicator" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'white', padding: '0.5rem 1rem', borderRadius: '50px', border: '1px solid #f3f4f6', boxShadow: '0 2px 5px rgba(0,0,0,0.02)' }}>
+            <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#e0e7ff', color: '#4f46e5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
+              {studentName.charAt(0).toUpperCase()}
+            </div>
+            <span style={{ fontWeight: '500', color: '#374151' }}>{studentName}</span>
+          </div>
+        </header>
+
+        {renderContent()}
+      </main>
     </div>
   );
 };

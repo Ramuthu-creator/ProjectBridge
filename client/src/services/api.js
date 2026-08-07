@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'http://localhost:5001/api';
 
 export const register = async (userData) => {
   const response = await fetch(`${API_URL}/auth/register`, {
@@ -59,5 +59,31 @@ export const getMyProjects = async (token) => {
   });
   const data = await response.json();
   if (!response.ok) throw new Error(data.message || 'Failed to fetch your projects');
+  return data;
+};
+
+export const getStudentProfile = async (token) => {
+  const response = await fetch(`${API_URL}/student/profile`, {
+    method: 'GET',
+    headers: { 
+      'Authorization': `Bearer ${token}` 
+    }
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.message || 'Failed to fetch profile');
+  return data;
+};
+
+export const updateStudentProfile = async (profileData, token) => {
+  const response = await fetch(`${API_URL}/student/profile`, {
+    method: 'PUT',
+    headers: { 
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}` 
+    },
+    body: JSON.stringify(profileData),
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.message || 'Failed to update profile');
   return data;
 };
