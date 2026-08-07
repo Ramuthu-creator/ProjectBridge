@@ -5,7 +5,7 @@ import DiscoverProjects from '../components/investor/DiscoverProjects';
 import ProjectsList from '../components/investor/ProjectsList';
 import ProjectDetails from '../components/investor/ProjectDetails';
 import InvestorProfile from '../components/investor/InvestorProfile';
-import { getAllProjects } from '../services/api';
+import { getAllProjects, getSavedProjects, saveProject, unsaveProject } from '../services/api';
 
 const InvestorDashboard = () => {
   const navigate = useNavigate();
@@ -14,6 +14,7 @@ const InvestorDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [userName, setUserName] = useState('Investor');
+  const [savedProjectIds, setSavedProjectIds] = useState(new Set());
   
   // Modal state
   const [selectedProject, setSelectedProject] = useState(null);
@@ -32,8 +33,19 @@ const InvestorDashboard = () => {
         console.error("Error decoding token", err);
       }
       fetchProjects();
+      fetchSavedProjects();
     }
   }, [navigate]);
+
+  const fetchSavedProjects = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const saved = await getSavedProjects(token);
+      setSavedProjectIds(new Set(saved.map(p => p._id)));
+    } catch (err) {
+      console.error("Failed to fetch saved projects", err);
+    }
+  };
 
   const fetchProjects = async (filters = null) => {
     setIsLoading(true);
@@ -59,6 +71,25 @@ const InvestorDashboard = () => {
     fetchProjects(filters);
   };
 
+  const handleToggleSave = async (projectId) => {
+    try {
+      const token = localStorage.getItem('token');
+      const isSaved = savedProjectIds.has(projectId);
+      
+      let updatedSaved;
+      if (isSaved) {
+        updatedSaved = await unsaveProject(projectId, token);
+      } else {
+        updatedSaved = await saveProject(projectId, token);
+      }
+      
+      setSavedProjectIds(new Set(updatedSaved.savedProjects));
+    } catch (err) {
+      console.error("Failed to toggle save project", err);
+      alert("Failed to update saved projects.");
+    }
+  };
+
   const renderContent = () => {
     if (activeTab === 'discover') {
       return (
@@ -66,15 +97,23 @@ const InvestorDashboard = () => {
           projects={projects} 
           isLoading={isLoading} 
           onViewDetails={setSelectedProject} 
+          savedProjectIds={savedProjectIds}
+          onToggleSave={handleToggleSave}
         />
       );
-    } else if (activeTab === 'list') {
+    } else if (activeTab === 'list' || activeTab === 'saved') {
+      const displayProjects = activeTab === 'saved' 
+        ? projects.filter(p => savedProjectIds.has(p._id))
+        : projects;
+        
       return (
         <ProjectsList 
-          projects={projects} 
+          projects={displayProjects} 
           isLoading={isLoading} 
           onApplyFilters={handleApplyFilters}
-          onViewDetails={setSelectedProject} 
+          onViewDetails={setSelectedProject}
+          savedProjectIds={savedProjectIds}
+          onToggleSave={handleToggleSave}
         />
       );
     } else if (activeTab === 'profile') {
@@ -116,7 +155,10 @@ const InvestorDashboard = () => {
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
             List View
           </div>
-          <div className="inv-nav-item">
+          <div 
+            className={`inv-nav-item ${activeTab === 'saved' ? 'active' : ''}`}
+            onClick={() => setActiveTab('saved')}
+          >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
             Saved Projects
           </div>
@@ -162,6 +204,8 @@ const InvestorDashboard = () => {
         <ProjectDetails 
           project={selectedProject} 
           onClose={() => setSelectedProject(null)} 
+          isSaved={savedProjectIds.has(selectedProject._id)}
+          onToggleSave={handleToggleSave}
         />
       )}
     </div>
