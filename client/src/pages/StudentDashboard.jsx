@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { uploadProject } from '../services/api';
+import { uploadProject, getMyProjects } from '../services/api';
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
@@ -14,6 +14,16 @@ const StudentDashboard = () => {
   const [status, setStatus] = useState('');
   const [ipProof, setIpProof] = useState(null);
   const [studentId, setStudentId] = useState('');
+  const [myProjects, setMyProjects] = useState([]);
+
+  const loadProjects = async (token) => {
+    try {
+      const projects = await getMyProjects(token);
+      setMyProjects(projects);
+    } catch (err) {
+      console.error('Failed to fetch projects:', err);
+    }
+  };
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -30,7 +40,10 @@ const StudentDashboard = () => {
     } catch (e) {
       console.error('Failed to decode token');
       navigate('/login');
+      return;
     }
+
+    loadProjects(token);
   }, [navigate]);
 
   const handleLogout = () => {
@@ -61,6 +74,9 @@ const StudentDashboard = () => {
       });
       // Reset form
       setFormData({ title: '', description: '', industrySector: '', technologyStack: '', projectReadinessLevel: 'Idea' });
+      
+      // Refresh the list
+      loadProjects(token);
     } catch (err) {
       setStatus(`Error: ${err.message}`);
     }
@@ -106,8 +122,33 @@ const StudentDashboard = () => {
         {status && <p style={{ marginTop: '1rem', fontWeight: 'bold' }}>{status}</p>}
       </div>
 
+      <div className="glass-panel" style={{ padding: '2rem', marginBottom: '2rem' }}>
+        <h2>My Projects</h2>
+        {myProjects.length === 0 ? (
+          <p style={{ marginTop: '1rem' }}>No projects uploaded yet.</p>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
+            {myProjects.map((proj) => (
+              <div key={proj._id} style={{ padding: '1.5rem', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px', backgroundColor: 'rgba(0,0,0,0.2)' }}>
+                <h3 style={{ marginBottom: '0.5rem', color: '#60a5fa' }}>{proj.title}</h3>
+                <p style={{ marginBottom: '1rem', lineHeight: '1.5' }}><strong>Description:</strong> {proj.description}</p>
+                <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
+                  <p><strong>Sector:</strong> {proj.industrySector}</p>
+                  <p><strong>Readiness:</strong> {proj.projectReadinessLevel}</p>
+                </div>
+                <p style={{ marginBottom: '1rem' }}><strong>Tech Stack:</strong> {proj.technologyStack && proj.technologyStack.length > 0 ? proj.technologyStack.join(', ') : 'None specified'}</p>
+                <div style={{ padding: '1rem', backgroundColor: 'rgba(0,0,0,0.3)', borderRadius: '6px', borderLeft: '4px solid #4CAF50' }}>
+                  <p style={{ fontSize: '0.9rem', marginBottom: '0.5rem' }}><strong>Upload Timestamp:</strong> {new Date(proj.uploadTimestamp).toLocaleString()}</p>
+                  <p style={{ fontSize: '0.9rem', wordBreak: 'break-all', color: '#a5b4fc', fontFamily: 'monospace' }}><strong>SHA-256 Hash:</strong> {proj.sha256Hash}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
       {ipProof && (
-        <div className="glass-panel" style={{ padding: '2rem', border: '2px solid #4CAF50', backgroundColor: 'rgba(76, 175, 80, 0.1)' }}>
+        <div className="glass-panel" style={{ padding: '2rem', marginBottom: '2rem', border: '2px solid #4CAF50', backgroundColor: 'rgba(76, 175, 80, 0.1)' }}>
           <h3 style={{ color: '#4CAF50', marginBottom: '1rem' }}>✅ Project Secured (IP Protection)</h3>
           <p style={{ marginBottom: '0.5rem' }}><strong>Upload Timestamp:</strong> {new Date(ipProof.timestamp).toLocaleString()}</p>
           <p style={{ marginBottom: '0.5rem' }}><strong>SHA-256 Hash Proof:</strong></p>
