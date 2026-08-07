@@ -61,13 +61,8 @@ const StudentDashboard = () => {
     setIpProof(null);
     try {
       const token = localStorage.getItem('token');
-      const projectData = {
-        ...formData,
-        studentId,
-        technologyStack: formData.technologyStack.split(',').map(s => s.trim()).filter(Boolean)
-      };
-      
-      const response = await uploadProject(projectData, token);
+      // formData is a FormData object from the component
+      const response = await uploadProject(formData, token);
       
       setIpProof({
         hash: response.project.sha256Hash,

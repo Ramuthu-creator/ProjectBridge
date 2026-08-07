@@ -34,6 +34,9 @@ const projectSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  demoVideoUrl: {
+    type: String,
+  }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Project', projectSchema);

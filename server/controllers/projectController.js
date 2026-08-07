@@ -30,15 +30,22 @@ exports.uploadProject = async (req, res) => {
     const dataToHash = `${studentId}-${title}-${uploadTimestamp.toISOString()}`;
     const sha256Hash = crypto.createHash('sha256').update(dataToHash).digest('hex');
 
+    // Check for uploaded video file
+    let demoVideoUrl = null;
+    if (req.file) {
+      demoVideoUrl = `/uploads/${req.file.filename}`;
+    }
+
     const newProject = new Project({
       title,
       description,
       studentId,
       industrySector,
-      technologyStack: technologyStack || [],
+      technologyStack: typeof technologyStack === 'string' ? technologyStack.split(',').map(s => s.trim()).filter(Boolean) : (technologyStack || []),
       projectReadinessLevel,
       uploadTimestamp,
       sha256Hash,
+      demoVideoUrl,
     });
 
     await newProject.save();

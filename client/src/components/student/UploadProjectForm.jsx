@@ -10,11 +10,28 @@ const UploadProjectForm = ({ onSubmit, isLoading }) => {
     projectReadinessLevel: 'Idea'
   });
 
+  const [demoVideo, setDemoVideo] = useState(null);
+
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setDemoVideo(e.target.files[0]);
+    }
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(formData);
+    const data = new FormData();
+    data.append('title', formData.title);
+    data.append('description', formData.description);
+    data.append('industrySector', formData.industrySector);
+    data.append('technologyStack', formData.technologyStack);
+    data.append('projectReadinessLevel', formData.projectReadinessLevel);
+    if (demoVideo) {
+      data.append('demoVideo', demoVideo);
+    }
+    onSubmit(data);
   };
 
   return (
@@ -89,6 +106,19 @@ const UploadProjectForm = ({ onSubmit, isLoading }) => {
               <option value="MVP">MVP (Minimum Viable Product)</option>
               <option value="Completed">Completed</option>
             </select>
+          </div>
+          
+          <div className="form-row">
+            <label className="form-label">Demo Video (Optional)</label>
+            <input 
+              type="file" 
+              name="demoVideo" 
+              accept="video/mp4,video/x-m4v,video/*"
+              className="form-input" 
+              onChange={handleFileChange}
+              style={{ padding: '0.6rem' }}
+            />
+            <small style={{ color: '#6b7280', marginTop: '0.25rem', display: 'block' }}>Max size: 50MB. Formats: MP4, WebM, etc.</small>
           </div>
 
           <button 

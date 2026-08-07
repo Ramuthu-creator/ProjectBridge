@@ -22,14 +22,13 @@ export const login = async (credentials) => {
   return data;
 };
 
-export const uploadProject = async (projectData, token) => {
+export const uploadProject = async (projectFormData, token) => {
   const response = await fetch(`${API_URL}/projects/upload`, {
     method: 'POST',
     headers: { 
-      'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}` 
     },
-    body: JSON.stringify(projectData),
+    body: projectFormData,
   });
   const data = await response.json();
   if (!response.ok) throw new Error(data.message || 'Project upload failed');
