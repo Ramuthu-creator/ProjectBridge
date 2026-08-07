@@ -18,6 +18,25 @@ const studentSchema = new mongoose.Schema({
     type: String,
     default: 'Student',
   },
+  university: {
+    type: String,
+    default: '',
+  },
+  degreeProgram: {
+    type: String,
+    default: '',
+  },
+  graduationYear: {
+    type: Number,
+  },
+  technicalSkills: {
+    type: [String],
+    default: [],
+  },
+  interestedSectors: {
+    type: [String],
+    default: [],
+  },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Student', studentSchema);
