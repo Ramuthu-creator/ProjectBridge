@@ -1,4 +1,6 @@
 require('dotenv').config();
+const dns = require('dns');
+dns.setServers(['8.8.8.8', '1.1.1.1']);
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -24,7 +26,11 @@ app.use('/api/investors', investorRoutes);
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI;
 
-mongoose.connect(MONGO_URI)
+mongoose.connect(MONGO_URI, {
+  family: 4,
+  serverSelectionTimeoutMS: 5000,
+  socketTimeoutMS: 45000
+})
   .then(() => {
     console.log('Connected to MongoDB successfully');
     app.listen(PORT, () => {
