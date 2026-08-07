@@ -61,6 +61,18 @@ export const getMyProjects = async (token) => {
   return data;
 };
 
+export const deleteProject = async (projectId, token) => {
+  const response = await fetch(`${API_URL}/projects/${projectId}`, {
+    method: 'DELETE',
+    headers: { 
+      'Authorization': `Bearer ${token}` 
+    }
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.message || 'Failed to delete project');
+  return data;
+};
+
 export const getStudentProfile = async (token) => {
   const response = await fetch(`${API_URL}/student/profile`, {
     method: 'GET',

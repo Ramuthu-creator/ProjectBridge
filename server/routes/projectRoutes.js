@@ -37,4 +37,7 @@ router.get('/my-projects', projectController.getMyProjects);
 // Get all projects (with optional filters)
 router.get('/all', projectController.getAllProjects);
 
+// Delete a project (Student)
+router.delete('/:id', projectController.deleteProject);
+
 module.exports = router;

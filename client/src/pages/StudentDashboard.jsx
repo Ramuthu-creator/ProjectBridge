@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { uploadProject, getMyProjects } from '../services/api';
+import { uploadProject, getMyProjects, deleteProject } from '../services/api';
 
 // Components
 import DashboardOverview from '../components/student/DashboardOverview';
@@ -78,6 +78,35 @@ const StudentDashboard = () => {
     }
   };
 
+  const handleDeleteProject = async (projectId) => {
+    try {
+      const token = localStorage.getItem('token');
+      await deleteProject(projectId, token);
+      loadProjects(token);
+    } catch (err) {
+      alert(`Error deleting project: ${err.message}`);
+    }
+  };
+
+  const handleDownloadProof = () => {
+    if (!ipProof) return;
+    
+    const content = `ProjectBridge - Intellectual Property Proof of Work\n\n` +
+                    `Upload Timestamp: ${new Date(ipProof.timestamp).toLocaleString()}\n` +
+                    `SHA-256 Hash Proof: ${ipProof.hash}\n\n` +
+                    `Save this file! It mathematically proves your ownership of this specific project state at the time of upload.`;
+                    
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `ProjectBridge_IP_Proof_${Date.now()}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   const renderContent = () => {
     if (ipProof && activeTab === 'upload') {
       return (
@@ -106,29 +135,62 @@ const StudentDashboard = () => {
             Save this hash! It mathematically proves your ownership of this specific project state at the time of upload.
           </p>
           
-          <button 
-            className="btn-new-project" 
-            style={{ margin: '2rem auto 0' }} 
-            onClick={() => {
-              setIpProof(null);
-              setActiveTab('dashboard');
-            }}
-          >
-            Back to Dashboard
-          </button>
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '2rem' }}>
+            <button 
+              className="btn-new-project" 
+              style={{ background: 'transparent', border: '1px solid #6366f1', color: '#818cf8' }} 
+              onClick={handleDownloadProof}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '8px', verticalAlign: 'middle' }}>
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              Download Proof
+            </button>
+            <button 
+              className="btn-new-project" 
+              onClick={() => {
+                setIpProof(null);
+                setActiveTab('dashboard');
+              }}
+            >
+              Back to Dashboard
+            </button>
+          </div>
         </div>
       );
     }
 
     switch(activeTab) {
       case 'dashboard':
-        return <DashboardOverview projects={myProjects} onNewProject={() => setActiveTab('upload')} />;
+        return (
+          <DashboardOverview 
+            projects={myProjects} 
+            onNewProject={() => setActiveTab('upload')} 
+            onDeleteProject={handleDeleteProject}
+            onViewIpProof={(proj) => {
+              setIpProof({ hash: proj.sha256Hash, timestamp: proj.uploadTimestamp });
+              setActiveTab('upload');
+            }}
+          />
+        );
       case 'upload':
         return <UploadProjectForm onSubmit={handleUploadProject} isLoading={isUploading} />;
       case 'profile':
         return <StudentProfile studentName={studentName} email={studentEmail} />;
       default:
-        return <DashboardOverview projects={myProjects} onNewProject={() => setActiveTab('upload')} />;
+        return (
+          <DashboardOverview 
+            projects={myProjects} 
+            onNewProject={() => setActiveTab('upload')} 
+            onDeleteProject={handleDeleteProject}
+            onViewIpProof={(proj) => {
+              setIpProof({ hash: proj.sha256Hash, timestamp: proj.uploadTimestamp });
+              setActiveTab('upload');
+            }}
+          />
+        );
     }
   };
 
