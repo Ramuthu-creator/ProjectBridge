@@ -132,3 +132,34 @@ export const updateInvestorProfile = async (profileData, token) => {
   if (!response.ok) throw new Error(data.message || 'Failed to update profile');
   return data;
 };
+
+// --- SAVED PROJECTS ENDPOINTS ---
+
+export const getSavedProjects = async (token) => {
+  const response = await fetch(`${API_URL}/investors/saved-projects`, {
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.message || 'Failed to fetch saved projects');
+  return data;
+};
+
+export const saveProject = async (projectId, token) => {
+  const response = await fetch(`${API_URL}/investors/saved-projects/${projectId}`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.message || 'Failed to save project');
+  return data;
+};
+
+export const unsaveProject = async (projectId, token) => {
+  const response = await fetch(`${API_URL}/investors/saved-projects/${projectId}`, {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.message || 'Failed to unsave project');
+  return data;
+};

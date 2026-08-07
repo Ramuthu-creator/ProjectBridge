@@ -10,4 +10,9 @@ router.use(authMiddleware);
 router.get('/profile', investorController.getProfile);
 router.put('/profile', investorController.updateProfile);
 
+// Saved Projects routes
+router.get('/saved-projects', investorController.getSavedProjects);
+router.post('/saved-projects/:id', investorController.saveProject);
+router.delete('/saved-projects/:id', investorController.unsaveProject);
+
 module.exports = router;

@@ -46,3 +46,51 @@ exports.updateProfile = async (req, res) => {
     res.status(500).json({ message: 'Server error while updating profile' });
   }
 };
+
+exports.saveProject = async (req, res) => {
+  try {
+    const projectId = req.params.id;
+    const investor = await Investor.findByIdAndUpdate(
+      req.user.id,
+      { $addToSet: { savedProjects: projectId } },
+      { new: true }
+    ).select('-password');
+    
+    if (!investor) return res.status(404).json({ message: 'Investor not found' });
+    res.json({ message: 'Project saved successfully', savedProjects: investor.savedProjects });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error saving project' });
+  }
+};
+
+exports.unsaveProject = async (req, res) => {
+  try {
+    const projectId = req.params.id;
+    const investor = await Investor.findByIdAndUpdate(
+      req.user.id,
+      { $pull: { savedProjects: projectId } },
+      { new: true }
+    ).select('-password');
+
+    if (!investor) return res.status(404).json({ message: 'Investor not found' });
+    res.json({ message: 'Project removed from saved', savedProjects: investor.savedProjects });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error unsaving project' });
+  }
+};
+
+exports.getSavedProjects = async (req, res) => {
+  try {
+    const investor = await Investor.findById(req.user.id)
+      .populate('savedProjects')
+      .select('savedProjects');
+      
+    if (!investor) return res.status(404).json({ message: 'Investor not found' });
+    res.json(investor.savedProjects || []);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error fetching saved projects' });
+  }
+};

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const DiscoverProjects = ({ projects, isLoading, onViewDetails }) => {
+const DiscoverProjects = ({ projects, isLoading, onViewDetails, savedProjectIds, onToggleSave }) => {
   const [activeFilter, setActiveFilter] = useState('All');
 
   const getStatusColorClass = (status) => {
@@ -97,9 +97,13 @@ const DiscoverProjects = ({ projects, isLoading, onViewDetails }) => {
               </div>
               
               <div className="inv-project-actions">
-                <button className="inv-btn-outline" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
-                  Save
+                <button 
+                  className="inv-btn-outline" 
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', ...(savedProjectIds.has(project._id) ? { background: 'rgba(99, 102, 241, 0.2)', borderColor: '#6366f1', color: 'white' } : {}) }}
+                  onClick={() => onToggleSave(project._id)}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill={savedProjectIds.has(project._id) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+                  {savedProjectIds.has(project._id) ? 'Saved' : 'Save'}
                 </button>
                 <button 
                   className="inv-btn-outline" 
