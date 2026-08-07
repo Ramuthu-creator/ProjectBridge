@@ -1,9 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './student.css';
 
-const DashboardOverview = ({ projects, onNewProject }) => {
+const DashboardOverview = ({ projects, onNewProject, onDeleteProject, onViewIpProof }) => {
+  const [openDropdownId, setOpenDropdownId] = useState(null);
+  
   const securedProjects = projects.filter(p => p.sha256Hash).length;
   const pendingMatches = 0; // Placeholder for matches logic
+
+  const toggleDropdown = (e, id) => {
+    e.stopPropagation();
+    setOpenDropdownId(prev => prev === id ? null : id);
+  };
 
   return (
     <div className="dashboard-overview">
@@ -66,17 +73,61 @@ const DashboardOverview = ({ projects, onNewProject }) => {
                 <h4>{proj.title}</h4>
                 <p>Uploaded: {new Date(proj.uploadTimestamp).toLocaleDateString()}</p>
               </div>
-              <div className="project-list-card-actions">
+              <div className="project-list-card-actions" style={{ position: 'relative' }}>
                 <span className={`project-status ${proj.sha256Hash ? 'status-secured' : 'status-pending'}`}>
                   {proj.sha256Hash ? 'Secured IP' : 'Pending'}
                 </span>
-                <button className="btn-ghost" style={{ marginLeft: '1rem', padding: '0.5rem', color: 'var(--text-muted, #9ca3af)' }}>
+                <button 
+                  className="btn-ghost" 
+                  style={{ marginLeft: '1rem', padding: '0.5rem', color: 'var(--text-muted, #9ca3af)', cursor: 'pointer' }}
+                  onClick={(e) => toggleDropdown(e, proj._id)}
+                >
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="12" cy="12" r="1"></circle>
                     <circle cx="19" cy="12" r="1"></circle>
                     <circle cx="5" cy="12" r="1"></circle>
                   </svg>
                 </button>
+
+                {/* Dropdown Menu */}
+                {openDropdownId === proj._id && (
+                  <div className="dropdown-menu" style={{
+                    position: 'absolute',
+                    top: '100%',
+                    right: '0',
+                    marginTop: '0.5rem',
+                    background: 'var(--glass-bg, rgba(20, 20, 22, 0.9))',
+                    backdropFilter: 'blur(12px)',
+                    border: '1px solid var(--border-color, rgba(255,255,255,0.1))',
+                    borderRadius: '8px',
+                    padding: '0.5rem',
+                    zIndex: 10,
+                    minWidth: '150px',
+                    boxShadow: '0 10px 25px rgba(0,0,0,0.5)'
+                  }}>
+                    <button 
+                      style={{ display: 'block', width: '100%', textAlign: 'left', padding: '0.5rem', background: 'none', border: 'none', color: 'white', cursor: 'pointer', borderRadius: '4px' }}
+                      onMouseEnter={e => e.target.style.background = 'rgba(255,255,255,0.1)'}
+                      onMouseLeave={e => e.target.style.background = 'none'}
+                      onClick={() => { setOpenDropdownId(null); onViewIpProof(proj); }}
+                    >
+                      View IP Proof
+                    </button>
+                    <button 
+                      style={{ display: 'block', width: '100%', textAlign: 'left', padding: '0.5rem', background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', borderRadius: '4px' }}
+                      onMouseEnter={e => e.target.style.background = 'rgba(239, 68, 68, 0.1)'}
+                      onMouseLeave={e => e.target.style.background = 'none'}
+                      onClick={() => { 
+                        setOpenDropdownId(null); 
+                        if (window.confirm('Are you sure you want to delete this project?')) {
+                          onDeleteProject(proj._id); 
+                        }
+                      }}
+                    >
+                      Delete Project
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           ))

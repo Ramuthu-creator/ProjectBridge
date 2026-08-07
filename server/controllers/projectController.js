@@ -133,3 +133,35 @@ exports.getAllProjects = async (req, res) => {
     res.status(500).json({ message: 'Server error while fetching all projects' });
   }
 };
+
+exports.deleteProject = async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+    const token = authHeader.split(' ')[1];
+    const secret = process.env.JWT_SECRET || 'your_temporary_jwt_secret_key';
+    const decoded = jwt.verify(token, secret);
+    
+    if (!decoded.user || !decoded.user.id) {
+      return res.status(401).json({ message: 'Invalid token' });
+    }
+
+    const studentId = decoded.user.id;
+    const projectId = req.params.id;
+
+    const project = await Project.findOneAndDelete({ _id: projectId, studentId: studentId });
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found or unauthorized' });
+    }
+
+    res.status(200).json({ message: 'Project deleted successfully' });
+  } catch (error) {
+    console.error(error);
+    if (error.name === 'JsonWebTokenError') {
+      return res.status(401).json({ message: 'Invalid token' });
+    }
+    res.status(500).json({ message: 'Server error during project deletion' });
+  }
+};
