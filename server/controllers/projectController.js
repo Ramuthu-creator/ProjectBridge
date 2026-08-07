@@ -101,3 +101,28 @@ exports.getMyProjects = async (req, res) => {
     res.status(500).json({ message: 'Server error while fetching my projects' });
   }
 };
+
+exports.getAllProjects = async (req, res) => {
+  try {
+    const { industrySector, projectReadinessLevel } = req.query;
+    
+    // Build filter query
+    let query = {};
+    if (industrySector) {
+      query.industrySector = industrySector;
+    }
+    if (projectReadinessLevel) {
+      query.projectReadinessLevel = projectReadinessLevel;
+    }
+
+    // Populate student info for all projects
+    const projects = await Project.find(query)
+      .populate('studentId', 'name email university degreeProgram graduationYear')
+      .sort({ uploadTimestamp: -1 });
+      
+    res.status(200).json(projects);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error while fetching all projects' });
+  }
+};

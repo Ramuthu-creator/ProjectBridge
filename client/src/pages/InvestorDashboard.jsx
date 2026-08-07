@@ -1,44 +1,46 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getMatchedProjects } from '../services/api';
+import '../components/investor/investor.css';
+import DiscoverProjects from '../components/investor/DiscoverProjects';
+import ProjectsList from '../components/investor/ProjectsList';
+import ProjectDetails from '../components/investor/ProjectDetails';
+import InvestorProfile from '../components/investor/InvestorProfile';
+import { getAllProjects } from '../services/api';
 
 const InvestorDashboard = () => {
   const navigate = useNavigate();
-  const [preferences, setPreferences] = useState({
-    interestedIndustrySectors: '',
-    interestedTechStacks: ''
-  });
+  const [activeTab, setActiveTab] = useState('discover'); // 'discover', 'list'
   const [projects, setProjects] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [userName, setUserName] = useState('Investor');
+  
+  // Modal state
+  const [selectedProject, setSelectedProject] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
       navigate('/login');
+    } else {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        if (payload.user && payload.user.name) {
+          setUserName(payload.user.name);
+        }
+      } catch (err) {
+        console.error("Error decoding token", err);
+      }
+      fetchProjects();
     }
   }, [navigate]);
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('role');
-    navigate('/login');
-  };
-
-  const handleChange = (e) => setPreferences({ ...preferences, [e.target.name]: e.target.value });
-
-  const fetchMatches = async (e) => {
-    e.preventDefault();
+  const fetchProjects = async (filters = null) => {
     setIsLoading(true);
     setError('');
     try {
       const token = localStorage.getItem('token');
-      const prefs = {
-        interestedIndustrySectors: preferences.interestedIndustrySectors.split(',').map(s => s.trim()).filter(Boolean),
-        interestedTechStacks: preferences.interestedTechStacks.split(',').map(s => s.trim()).filter(Boolean)
-      };
-      
-      const data = await getMatchedProjects(prefs, token);
+      const data = await getAllProjects(filters, token);
       setProjects(data);
     } catch (err) {
       setError(err.message);
@@ -47,58 +49,120 @@ const InvestorDashboard = () => {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('role');
+    navigate('/login');
+  };
+
+  const handleApplyFilters = (filters) => {
+    fetchProjects(filters);
+  };
+
+  const renderContent = () => {
+    if (activeTab === 'discover') {
+      return (
+        <DiscoverProjects 
+          projects={projects} 
+          isLoading={isLoading} 
+          onViewDetails={setSelectedProject} 
+        />
+      );
+    } else if (activeTab === 'list') {
+      return (
+        <ProjectsList 
+          projects={projects} 
+          isLoading={isLoading} 
+          onApplyFilters={handleApplyFilters}
+          onViewDetails={setSelectedProject} 
+        />
+      );
+    } else if (activeTab === 'profile') {
+      return <InvestorProfile />;
+    }
+  };
+
   return (
-    <div style={{ padding: '2rem', maxWidth: '1000px', margin: '0 auto', color: 'white' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <h1>Investor Dashboard</h1>
-        <button onClick={handleLogout} className="btn btn-secondary">Logout</button>
+    <div className="investor-dashboard-layout">
+      {/* Background Effects matching landing page */}
+      <div className="inv-dashboard-bg-effects">
+          <div className="inv-glow-orb inv-orb-1"></div>
+          <div className="inv-glow-orb inv-orb-2"></div>
       </div>
-
-      <div className="glass-panel" style={{ padding: '2rem', marginBottom: '2rem' }}>
-        <h2>Find Matching Projects</h2>
-        <form onSubmit={fetchMatches} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem' }}>Interested Industries (comma separated)</label>
-            <input type="text" name="interestedIndustrySectors" value={preferences.interestedIndustrySectors} onChange={handleChange} style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }} placeholder="e.g. Healthcare, EdTech" />
-          </div>
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem' }}>Interested Technologies (comma separated)</label>
-            <input type="text" name="interestedTechStacks" value={preferences.interestedTechStacks} onChange={handleChange} style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }} placeholder="e.g. React, Python, AI" />
-          </div>
-          <button type="submit" className="btn btn-primary" style={{ marginTop: '1rem', padding: '0.75rem', border: 'none', borderRadius: '4px', cursor: 'pointer' }} disabled={isLoading}>
-            {isLoading ? 'Searching...' : 'Find Matches'}
-          </button>
-        </form>
-        {error && <p style={{ color: '#ef4444', marginTop: '1rem' }}>{error}</p>}
-      </div>
-
-      <h3 style={{ marginBottom: '1rem' }}>Matched Projects ({projects.length})</h3>
       
-      <div className="projects-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
-        {projects.map((project) => (
-          <div key={project._id} className="glass-panel" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
-            <h3 style={{ color: '#818cf8', marginBottom: '0.5rem' }}>{project.title}</h3>
-            <p style={{ fontSize: '0.9rem', color: '#cbd5e1', marginBottom: '1rem', flexGrow: 1 }}>{project.description}</p>
-            
-            <div style={{ marginBottom: '0.5rem' }}>
-              <strong>Industry:</strong> {project.industrySector}
-            </div>
-            <div style={{ marginBottom: '0.5rem' }}>
-              <strong>Readiness:</strong> {project.projectReadinessLevel}
-            </div>
-            <div style={{ marginBottom: '1rem' }}>
-              <strong>Stack:</strong> {project.technologyStack?.join(', ') || 'N/A'}
-            </div>
-            
-            <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-              <p style={{ fontSize: '0.85rem' }}><strong>Student:</strong> {project.studentId?.name}</p>
-              <p style={{ fontSize: '0.85rem' }}><strong>Contact:</strong> <a href={`mailto:${project.studentId?.email}`} style={{ color: '#f472b6' }}>{project.studentId?.email}</a></p>
+      {/* Sidebar */}
+      <aside className="inv-sidebar">
+        <div className="inv-sidebar-logo">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+            <line x1="12" y1="22.08" x2="12" y2="12"></line>
+          </svg>
+          ProjectBridge
+        </div>
+
+        <nav className="inv-nav">
+          <div 
+            className={`inv-nav-item ${activeTab === 'discover' ? 'active' : ''}`}
+            onClick={() => setActiveTab('discover')}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            Discover
+          </div>
+          <div 
+            className={`inv-nav-item ${activeTab === 'list' ? 'active' : ''}`}
+            onClick={() => setActiveTab('list')}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+            List View
+          </div>
+          <div className="inv-nav-item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+            Saved Projects
+          </div>
+          <div 
+            className={`inv-nav-item ${activeTab === 'profile' ? 'active' : ''}`}
+            onClick={() => setActiveTab('profile')}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            My Profile
+          </div>
+          
+          <div className="inv-nav-item logout" onClick={handleLogout}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            Logout
+          </div>
+        </nav>
+      </aside>
+
+      {/* Main Content */}
+      <main className="inv-main">
+        <header className="inv-header">
+          <div className="inv-search">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" placeholder="Search projects..." />
+          </div>
+          
+          <div className="inv-header-actions">
+            <div className="inv-user-profile">
+              <div className="inv-user-avatar">{userName.charAt(0).toUpperCase()}</div>
+              <span>{userName}</span>
             </div>
           </div>
-        ))}
-      </div>
-      {!isLoading && projects.length === 0 && (
-          <p style={{ color: '#94a3b8', fontStyle: 'italic', marginTop: '1rem' }}>No matches found or no search performed yet.</p>
+        </header>
+
+        {error && <div style={{ color: '#ef4444', marginBottom: '1rem' }}>{error}</div>}
+        
+        {renderContent()}
+
+      </main>
+
+      {/* Project Details Modal */}
+      {selectedProject && (
+        <ProjectDetails 
+          project={selectedProject} 
+          onClose={() => setSelectedProject(null)} 
+        />
       )}
     </div>
   );

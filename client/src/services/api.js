@@ -87,3 +87,48 @@ export const updateStudentProfile = async (profileData, token) => {
   if (!response.ok) throw new Error(data.message || 'Failed to update profile');
   return data;
 };
+
+export const getAllProjects = async (filters, token) => {
+  let query = '';
+  if (filters) {
+    const params = new URLSearchParams();
+    if (filters.industrySector) params.append('industrySector', filters.industrySector);
+    if (filters.projectReadinessLevel) params.append('projectReadinessLevel', filters.projectReadinessLevel);
+    query = `?${params.toString()}`;
+  }
+
+  const response = await fetch(`${API_URL}/projects/all${query}`, {
+    method: 'GET',
+    headers: { 
+      'Authorization': `Bearer ${token}` 
+    }
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.message || 'Failed to fetch all projects');
+  return data;
+};
+
+// --- INVESTOR ENDPOINTS ---
+
+export const getInvestorProfile = async (token) => {
+  const response = await fetch(`${API_URL}/investors/profile`, {
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.message || 'Failed to fetch profile');
+  return data;
+};
+
+export const updateInvestorProfile = async (profileData, token) => {
+  const response = await fetch(`${API_URL}/investors/profile`, {
+    method: 'PUT',
+    headers: { 
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}` 
+    },
+    body: JSON.stringify(profileData)
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.message || 'Failed to update profile');
+  return data;
+};

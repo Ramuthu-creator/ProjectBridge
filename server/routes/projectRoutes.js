@@ -10,4 +10,7 @@ router.post('/match', projectController.getMatchedProjects);
 // Get my projects
 router.get('/my-projects', projectController.getMyProjects);
 
+// Get all projects (with optional filters)
+router.get('/all', projectController.getAllProjects);
+
 module.exports = router;
