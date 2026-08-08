@@ -1,4 +1,5 @@
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5001';
+// If VITE_BACKEND_URL is set, use it. Otherwise, if we're in production (Vercel), use empty string (relative path). Otherwise, use localhost for local development.
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || (import.meta.env.PROD ? '' : 'http://localhost:5001');
 const API_URL = `${BACKEND_URL}/api`;
 
 export const register = async (userData) => {
