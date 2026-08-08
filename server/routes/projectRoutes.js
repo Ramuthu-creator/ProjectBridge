@@ -4,6 +4,7 @@ const projectController = require('../controllers/projectController');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const authMiddleware = require('../middleware/authMiddleware');
 
 // Ensure uploads directory exists
 const uploadDir = path.join(__dirname, '..', 'uploads');
@@ -25,6 +26,9 @@ const upload = multer({
   storage: storage,
   limits: { fileSize: 50 * 1024 * 1024 } // 50MB limit
 });
+
+// Protect all routes with authMiddleware
+router.use(authMiddleware);
 
 // Upload a new project (Student)
 router.post('/upload', upload.single('demoVideo'), projectController.uploadProject);

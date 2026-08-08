@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { register } from '../services/api';
 
 const Register = () => {
-    const [formData, setFormData] = useState({ name: '', email: '', password: '', role: '' });
+    const [formData, setFormData] = useState({ name: '', email: '', password: '', role: '', companyName: '' });
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
@@ -36,10 +36,11 @@ const Register = () => {
         setIsLoading(true);
         
         try {
-            // Note: The backend schema requires companyName for Investors. We send a placeholder here to prevent validation errors.
             const dataToSubmit = { ...formData };
-            if (dataToSubmit.role === 'Investor') {
-                dataToSubmit.companyName = 'Independent Investor'; 
+            if (dataToSubmit.role === 'Student') {
+                delete dataToSubmit.companyName;
+            } else if (dataToSubmit.role === 'Investor' && !dataToSubmit.companyName) {
+                dataToSubmit.companyName = 'Independent Investor';
             }
             
             await register(dataToSubmit);
@@ -96,6 +97,13 @@ const Register = () => {
                                 <option value="Investor">Investor</option>
                             </select>
                         </div>
+
+                        {formData.role === 'Investor' && (
+                            <div className="form-group">
+                                <label htmlFor="companyName">Company Name</label>
+                                <input type="text" id="companyName" name="companyName" value={formData.companyName} onChange={handleChange} placeholder="Venture Capital LLC (or 'Independent')" required />
+                            </div>
+                        )}
 
                         <div className="form-group">
                             <label htmlFor="password">Password</label>
