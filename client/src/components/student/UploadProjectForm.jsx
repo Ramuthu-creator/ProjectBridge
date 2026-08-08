@@ -20,18 +20,57 @@ const UploadProjectForm = ({ onSubmit, isLoading }) => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const data = new FormData();
-    data.append('title', formData.title);
-    data.append('description', formData.description);
-    data.append('industrySector', formData.industrySector);
-    data.append('technologyStack', formData.technologyStack);
-    data.append('projectReadinessLevel', formData.projectReadinessLevel);
+    
+    let uploadedVideoUrl = null;
+
     if (demoVideo) {
-      data.append('demoVideo', demoVideo);
+      // Cloudinary configuration from environment variables
+      const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+      const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+
+      if (!cloudName || !uploadPreset) {
+        alert('Cloudinary configuration is missing. Please set VITE_CLOUDINARY_CLOUD_NAME and VITE_CLOUDINARY_UPLOAD_PRESET in your environment.');
+        return;
+      }
+
+      // We need to notify the parent component that we are uploading (so it shows loading state)
+      // A slightly hacky way is to just use local state for the button text
+      try {
+        const formData = new FormData();
+        formData.append('file', demoVideo);
+        formData.append('upload_preset', uploadPreset);
+
+        const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/video/upload`, {
+          method: 'POST',
+          body: formData,
+        });
+
+        const data = await response.json();
+        
+        if (data.secure_url) {
+          uploadedVideoUrl = data.secure_url;
+        } else {
+          throw new Error('Failed to upload video to Cloudinary');
+        }
+      } catch (error) {
+        console.error('Cloudinary upload error:', error);
+        alert('Error uploading video: ' + error.message);
+        return; // Stop submission on video error
+      }
     }
-    onSubmit(data);
+
+    const payload = {
+      title: formData.title,
+      description: formData.description,
+      industrySector: formData.industrySector,
+      technologyStack: formData.technologyStack,
+      projectReadinessLevel: formData.projectReadinessLevel,
+      demoVideoUrl: uploadedVideoUrl
+    };
+    
+    onSubmit(payload);
   };
 
   return (

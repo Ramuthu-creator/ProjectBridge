@@ -3,7 +3,7 @@ const Project = require('../models/Project');
 
 exports.uploadProject = async (req, res) => {
   try {
-    const { title, description, industrySector, technologyStack, projectReadinessLevel } = req.body;
+    const { title, description, industrySector, technologyStack, projectReadinessLevel, demoVideoUrl } = req.body;
 
     const studentId = req.user.id;
 
@@ -17,11 +17,6 @@ exports.uploadProject = async (req, res) => {
     const dataToHash = `${studentId}-${title}-${uploadTimestamp.toISOString()}`;
     const sha256Hash = crypto.createHash('sha256').update(dataToHash).digest('hex');
 
-    // Check for uploaded video file
-    let demoVideoUrl = null;
-    if (req.file) {
-      demoVideoUrl = `/uploads/${req.file.filename}`;
-    }
 
     const newProject = new Project({
       title,

@@ -1,4 +1,5 @@
-const API_URL = 'http://localhost:5001/api';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5001';
+const API_URL = `${BACKEND_URL}/api`;
 
 export const register = async (userData) => {
   const response = await fetch(`${API_URL}/auth/register`, {
@@ -22,13 +23,14 @@ export const login = async (credentials) => {
   return data;
 };
 
-export const uploadProject = async (projectFormData, token) => {
+export const uploadProject = async (projectData, token) => {
   const response = await fetch(`${API_URL}/projects/upload`, {
     method: 'POST',
     headers: { 
+      'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}` 
     },
-    body: projectFormData,
+    body: JSON.stringify(projectData),
   });
   const data = await response.json();
   if (!response.ok) throw new Error(data.message || 'Project upload failed');
