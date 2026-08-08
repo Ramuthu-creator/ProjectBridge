@@ -84,7 +84,7 @@ const ProjectDetails = ({ project, onClose, isSaved, onToggleSave }) => {
               <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border-color)', background: '#000' }}>
                 <video 
                   controls 
-                  src={project.demoVideoUrl.startsWith('http') ? project.demoVideoUrl : `${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5001'}${project.demoVideoUrl}`} 
+                  src={project.demoVideoUrl.startsWith('http') ? project.demoVideoUrl : `${import.meta.env.VITE_BACKEND_URL || (import.meta.env.PROD ? '' : 'http://localhost:5001')}${project.demoVideoUrl}`} 
                   style={{ width: '100%', display: 'block', maxHeight: '400px', objectFit: 'contain' }}
                 >
                   Your browser does not support the video tag.
