@@ -174,3 +174,39 @@ export const unsaveProject = async (projectId, token) => {
   if (!response.ok) throw new Error(data.message || 'Failed to unsave project');
   return data;
 };
+
+// --- MEETING REQUEST ENDPOINTS ---
+
+export const requestMeeting = async (projectId, token) => {
+  const response = await fetch(`${API_URL}/investors/request-meeting/${projectId}`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.message || 'Failed to request meeting');
+  return data;
+};
+
+export const getStudentMeetings = async (token) => {
+  const response = await fetch(`${API_URL}/student/meetings`, {
+    method: 'GET',
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.message || 'Failed to fetch meetings');
+  return data;
+};
+
+export const updateMeetingStatus = async (meetingId, status, token) => {
+  const response = await fetch(`${API_URL}/student/meetings/${meetingId}`, {
+    method: 'PUT',
+    headers: { 
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}` 
+    },
+    body: JSON.stringify({ status })
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.message || 'Failed to update meeting status');
+  return data;
+};

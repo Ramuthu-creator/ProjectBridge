@@ -2,8 +2,8 @@
 .investor-dashboard-layout {
   display: flex;
   min-height: 100vh;
-  background-color: var(--bg-color, #050505);
-  color: var(--text-color, #f3f4f6);
+  background-color: var(--bg-color);
+  color: var(--text-color);
   font-family: 'Outfit', sans-serif;
   width: 100vw;
   position: absolute;
@@ -15,50 +15,13 @@
 
 /* Background Effects mimicking the student dashboard */
 .inv-dashboard-bg-effects {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  z-index: -1;
-  pointer-events: none;
-}
-.inv-glow-orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(100px);
-  opacity: 0.5;
-  animation: floatOrb 20s infinite alternate ease-in-out;
-}
-.inv-orb-1 {
-  width: 400px;
-  height: 400px;
-  background: radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, rgba(99, 102, 241, 0) 70%);
-  top: -100px;
-  left: -100px;
-}
-.inv-orb-2 {
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle, rgba(236, 72, 153, 0.2) 0%, rgba(236, 72, 153, 0) 70%);
-  bottom: -150px;
-  right: -100px;
-  animation-delay: -5s;
-}
-
-@keyframes floatOrb {
-  0% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(30px, -50px) scale(1.1); }
-  66% { transform: translate(-20px, 20px) scale(0.9); }
-  100% { transform: translate(0, 0) scale(1); }
+  display: none;
 }
 
 .inv-sidebar {
   width: 250px;
-  background: var(--glass-bg, rgba(20, 20, 22, 0.6));
-  backdrop-filter: blur(12px);
-  border-right: 1px solid var(--border-color, rgba(255,255,255,0.1));
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border-color);
   padding: 2rem 1.5rem;
   display: flex;
   flex-direction: column;
@@ -117,6 +80,7 @@
   padding: 2rem 3rem;
   overflow-y: auto;
   height: 100vh;
+  background-color: transparent;
 }
 
 .inv-header {
@@ -171,10 +135,10 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  background: rgba(255,255,255,0.05);
+  background: var(--card-bg);
   padding: 0.35rem 1rem 0.35rem 0.35rem;
   border-radius: 50px;
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid var(--border-color);
 }
 .inv-user-avatar {
   width: 32px;
@@ -203,32 +167,26 @@
 }
 
 .inv-stat-card {
-  background: var(--glass-bg, rgba(20, 20, 22, 0.6));
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--border-color, rgba(255,255,255,0.1));
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-top: 3px solid var(--primary);
   border-radius: 12px;
-  padding: 1.5rem;
+  padding: 1rem 1.25rem;
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-.inv-stat-card.primary {
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(236, 72, 153, 0.2));
-  border-color: rgba(236, 72, 153, 0.3);
+  align-items: center;
+  gap: 1rem;
 }
 .inv-stat-card h3 {
-  font-size: 1.75rem;
+  font-size: 1.5rem;
   font-weight: 700;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.15rem;
   color: white;
+  line-height: 1;
 }
 .inv-stat-card p {
-  font-size: 0.9rem;
-  color: #9ca3af;
+  font-size: 0.95rem;
+  color: var(--text-muted);
   font-weight: 500;
-}
-.inv-stat-card.primary p {
-  color: #e2e8f0;
 }
 
 .inv-filters-bar {
@@ -267,20 +225,19 @@
 }
 
 .inv-project-card {
-  background: var(--glass-bg, rgba(20, 20, 22, 0.6));
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--border-color, rgba(255,255,255,0.1));
-  border-radius: 16px;
-  padding: 1.5rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
   display: flex;
   flex-direction: column;
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s;
   position: relative;
 }
 .inv-project-card:hover {
-  transform: translateY(-4px);
-  border-color: rgba(99, 102, 241, 0.4);
-  box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
+  transform: translateY(-2px);
+  border-color: rgba(236, 72, 153, 0.4);
+  box-shadow: 0 4px 15px -5px rgba(236, 72, 153, 0.15);
 }
 
 .inv-project-icon-box {
@@ -320,9 +277,9 @@
 .inv-tag {
   background: rgba(255,255,255,0.05);
   color: #d1d5db;
-  padding: 0.25rem 0.6rem;
-  border-radius: 4px;
-  font-size: 0.75rem;
+  padding: 0.45rem 1rem;
+  border-radius: 50px;
+  font-size: 0.85rem;
   font-weight: 500;
   border: 1px solid rgba(255,255,255,0.05);
 }
@@ -365,10 +322,9 @@
 
 /* List View Components */
 .inv-list-layout {
-  display: grid;
-  grid-template-columns: 240px 1fr;
-  gap: 2rem;
-  align-items: start;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
 .inv-filter-sidebar {
@@ -400,18 +356,19 @@
 }
 
 .inv-list-item {
-  background: var(--glass-bg, rgba(20, 20, 22, 0.6));
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--border-color, rgba(255,255,255,0.1));
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
   border-radius: 12px;
   padding: 1.25rem 1.5rem;
   display: flex;
   align-items: center;
   gap: 1.5rem;
-  transition: border-color 0.2s ease;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 .inv-list-item:hover {
-  border-color: rgba(99, 102, 241, 0.4);
+  transform: translateY(-2px);
+  border-color: rgba(236, 72, 153, 0.4);
+  box-shadow: 0 4px 15px -5px rgba(236, 72, 153, 0.15);
 }
 
 .inv-list-item-content {
@@ -579,9 +536,9 @@
 }
 
 .inv-side-panel {
-  background: var(--glass-bg, rgba(20, 20, 22, 0.6));
-  border: 1px solid var(--border-color, rgba(255,255,255,0.1));
-  border-radius: 16px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
   padding: 1.5rem;
 }
 .inv-metric {

@@ -69,15 +69,19 @@ const UploadProjectForm = ({ onSubmit, isLoading }) => {
           
           <div className="form-row">
             <label className="form-label">Industry Sector</label>
-            <input 
-              type="text" 
+            <select 
               name="industrySector" 
               className="form-input" 
               value={formData.industrySector} 
               onChange={handleChange} 
-              placeholder="e.g. Healthcare, Fintech, EdTech" 
               required 
-            />
+            >
+              <option value="" disabled>Select an Industry</option>
+              <option value="Healthcare">Healthcare</option>
+              <option value="Fintech">Fintech</option>
+              <option value="EdTech">EdTech</option>
+              <option value="AI / Machine Learning">AI / Machine Learning</option>
+            </select>
           </div>
           
           <div className="form-row">

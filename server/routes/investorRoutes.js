@@ -15,4 +15,7 @@ router.get('/saved-projects', investorController.getSavedProjects);
 router.post('/saved-projects/:id', investorController.saveProject);
 router.delete('/saved-projects/:id', investorController.unsaveProject);
 
+// Meeting Requests
+router.post('/request-meeting/:projectId', investorController.requestMeeting);
+
 module.exports = router;

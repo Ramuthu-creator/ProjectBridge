@@ -2,8 +2,8 @@
 .student-dashboard-layout {
   display: flex;
   min-height: 100vh;
-  background-color: var(--bg-color, #050505);
-  color: var(--text-color, #f3f4f6);
+  background-color: var(--bg-color);
+  color: var(--text-color);
   font-family: 'Outfit', sans-serif;
   width: 100vw;
   position: absolute;
@@ -12,24 +12,14 @@
   z-index: 10;
 }
 
-/* Add a background effect specific to dashboard if needed */
 .dashboard-bg-effects {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: -1;
-  pointer-events: none;
-  overflow: hidden;
+  display: none;
 }
 
 .dashboard-sidebar {
   width: 260px;
-  background: rgba(10, 10, 12, 0.7);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-right: 1px solid var(--border-color, rgba(255,255,255,0.1));
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border-color);
   padding: 2rem 1.5rem;
   display: flex;
   flex-direction: column;
@@ -123,6 +113,7 @@
   overflow-y: auto;
   height: 100vh;
   position: relative;
+  background-color: transparent;
 }
 
 .dashboard-header {
@@ -145,11 +136,10 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  background: var(--glass-bg, rgba(20, 20, 22, 0.6));
-  backdrop-filter: blur(12px);
+  background: var(--card-bg);
   padding: 0.5rem 1rem;
   border-radius: 50px;
-  border: 1px solid var(--border-color, rgba(255,255,255,0.1));
+  border: 1px solid var(--border-color);
 }
 
 .user-indicator-avatar {
@@ -170,19 +160,16 @@
   color: var(--text-color, white);
 }
 
-/* Glass Cards */
+/* Solid Cards */
 .glass-card {
-  background: var(--glass-bg, rgba(20, 20, 22, 0.6));
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--border-color, rgba(255,255,255,0.1));
-  border-radius: 16px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  transition: transform 0.3s ease, border-color 0.3s ease;
 }
 
 .glass-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
   border-color: rgba(255, 255, 255, 0.2);
 }
 
@@ -195,14 +182,14 @@
 }
 
 .stat-card {
-  padding: 1.5rem;
+  padding: 1rem 1.25rem;
   display: flex;
   align-items: flex-start;
-  gap: 1.25rem;
-  background: var(--glass-bg, rgba(20, 20, 22, 0.6));
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--border-color, rgba(255,255,255,0.1));
-  border-radius: 16px;
+  gap: 1rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-top: 3px solid var(--primary);
+  border-radius: 12px;
   transition: transform 0.3s ease, border-color 0.3s ease;
 }
 .stat-card:hover {
@@ -211,9 +198,9 @@
 }
 
 .stat-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -224,13 +211,13 @@
 
 .stat-info h3 {
   font-size: 0.95rem;
-  color: var(--text-muted, #9ca3af);
+  color: var(--text-muted);
   font-weight: 500;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.15rem;
 }
 
 .stat-info p {
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: white;
   line-height: 1;
@@ -269,20 +256,20 @@
 }
 
 .project-list-card {
-  padding: 1.5rem;
+  padding: 1.25rem 1.5rem;
   margin-bottom: 1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: var(--glass-bg, rgba(20, 20, 22, 0.6));
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--border-color, rgba(255,255,255,0.1));
-  border-radius: 16px;
-  transition: transform 0.3s ease;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 .project-list-card:hover {
-  transform: translateX(4px);
-  background: rgba(255, 255, 255, 0.03);
+  transform: translateY(-2px);
+  border-color: rgba(236, 72, 153, 0.4);
+  box-shadow: 0 4px 15px -5px rgba(236, 72, 153, 0.15);
 }
 
 .project-list-card-info h4 {
@@ -297,9 +284,9 @@
 }
 
 .project-status {
-  padding: 0.35rem 0.85rem;
+  padding: 0.45rem 1rem;
   border-radius: 50px;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 500;
   border: 1px solid transparent;
 }
@@ -324,10 +311,9 @@
 
 .upload-form-container {
   padding: 2.5rem;
-  background: var(--glass-bg, rgba(20, 20, 22, 0.6));
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--border-color, rgba(255,255,255,0.1));
-  border-radius: 20px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
 }
 
 .upload-sidebar {
@@ -338,10 +324,9 @@
 
 .sidebar-card {
   padding: 2rem;
-  border-radius: 20px;
-  background: var(--glass-bg, rgba(20, 20, 22, 0.6));
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--border-color, rgba(255,255,255,0.1));
+  border-radius: 12px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
 }
 
 .ip-protected-card {
@@ -478,10 +463,9 @@ select.form-input option {
   align-items: center;
   gap: 1.5rem;
   margin-bottom: 1.5rem;
-  background: var(--glass-bg, rgba(20, 20, 22, 0.6));
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--border-color, rgba(255,255,255,0.1));
-  border-radius: 20px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
 }
 .profile-avatar {
   width: 90px;
@@ -513,10 +497,9 @@ select.form-input option {
 }
 .profile-card {
   padding: 2rem;
-  background: var(--glass-bg, rgba(20, 20, 22, 0.6));
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--border-color, rgba(255,255,255,0.1));
-  border-radius: 20px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
 }
 .profile-card h3 {
   font-size: 1.25rem;
@@ -570,11 +553,9 @@ select.form-input option {
   text-align: center;
   max-width: 700px;
   margin: 0 auto;
-  background: var(--glass-bg, rgba(20, 20, 22, 0.6));
-  backdrop-filter: blur(12px);
+  background: var(--card-bg);
   border: 1px solid rgba(16, 185, 129, 0.3);
-  border-radius: 20px;
-  box-shadow: 0 0 40px rgba(16, 185, 129, 0.1);
+  border-radius: 12px;
 }
 .secured-icon {
   width: 90px;

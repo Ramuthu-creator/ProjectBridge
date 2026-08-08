@@ -2,19 +2,52 @@ import React, { useState } from 'react';
 
 const ProjectsList = ({ projects, isLoading, onApplyFilters, onViewDetails, savedProjectIds, onToggleSave }) => {
   const [filters, setFilters] = useState({
-    industrySector: '',
-    projectReadinessLevel: ''
+    industrySector: [],
+    projectReadinessLevel: []
   });
+  
+  const [openDropdown, setOpenDropdown] = useState(null); // 'status', 'industry'
 
-  const handleFilterChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    // For radio/checkbox simplification in this demo
-    if (type === 'radio' && checked) {
-      const newFilters = { ...filters, [name]: value };
-      setFilters(newFilters);
-      onApplyFilters(newFilters);
-    }
+  const STATUS_OPTIONS = ['Idea', 'Prototype', 'MVP', 'Completed'];
+  const INDUSTRY_OPTIONS = ['Healthcare', 'Fintech', 'EdTech', 'AI / Machine Learning'];
+
+  const toggleDropdown = (dropdown) => {
+    setOpenDropdown(openDropdown === dropdown ? null : dropdown);
   };
+
+  const handleCheckboxChange = (category, value) => {
+    setFilters(prev => {
+      const currentList = prev[category];
+      const isSelected = currentList.includes(value);
+      
+      const newList = isSelected 
+        ? currentList.filter(item => item !== value)
+        : [...currentList, value];
+        
+      const newFilters = { ...prev, [category]: newList };
+      
+      // Update parent API
+      const apiFilters = {
+        industrySector: newFilters.industrySector.join(','),
+        projectReadinessLevel: newFilters.projectReadinessLevel.join(',')
+      };
+      
+      onApplyFilters(apiFilters);
+      return newFilters;
+    });
+  };
+
+  const removeFilter = (category, value) => {
+    handleCheckboxChange(category, value);
+  };
+
+  const clearAllFilters = () => {
+    const empty = { industrySector: [], projectReadinessLevel: [] };
+    setFilters(empty);
+    onApplyFilters({ industrySector: '', projectReadinessLevel: '' });
+  };
+
+  const hasActiveFilters = filters.industrySector.length > 0 || filters.projectReadinessLevel.length > 0;
 
   const getStatusColorClass = (status) => {
     switch(status) {
@@ -32,85 +65,116 @@ const ProjectsList = ({ projects, isLoading, onApplyFilters, onViewDetails, save
   };
 
   return (
-    <div className="inv-list-layout">
-      {/* Filters Sidebar */}
-      <aside className="inv-filter-sidebar">
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
-          <h3 style={{ fontSize: '1.1rem', fontWeight: 600 }}>Filters</h3>
-          <button 
-            style={{ color: '#2563eb', background: 'none', border: 'none', fontSize: '0.85rem', cursor: 'pointer' }}
-            onClick={() => { setFilters({ industrySector: '', projectReadinessLevel: '' }); onApplyFilters({}); }}
-          >
-            Clear all
-          </button>
+    <div className="inv-list-layout" onClick={() => setOpenDropdown(null)}>
+      {/* Filter Row */}
+      <div>
+        <div className="filter-dropdown-row">
+          <div className="dropdown-container" onClick={e => e.stopPropagation()}>
+            <button 
+              className={`dropdown-button ${filters.projectReadinessLevel.length > 0 ? 'active' : ''}`}
+              onClick={() => toggleDropdown('status')}
+            >
+              Status {filters.projectReadinessLevel.length > 0 && `(${filters.projectReadinessLevel.length})`}
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+            
+            {openDropdown === 'status' && (
+              <div className="dropdown-popover">
+                {STATUS_OPTIONS.map(status => (
+                  <label key={status} className="dropdown-checkbox-label">
+                    <input 
+                      type="checkbox" 
+                      checked={filters.projectReadinessLevel.includes(status)}
+                      onChange={() => handleCheckboxChange('projectReadinessLevel', status)}
+                    />
+                    {status}
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="dropdown-container" onClick={e => e.stopPropagation()}>
+            <button 
+              className={`dropdown-button ${filters.industrySector.length > 0 ? 'active' : ''}`}
+              onClick={() => toggleDropdown('industry')}
+            >
+              Industry {filters.industrySector.length > 0 && `(${filters.industrySector.length})`}
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+            
+            {openDropdown === 'industry' && (
+              <div className="dropdown-popover">
+                {INDUSTRY_OPTIONS.map(industry => (
+                  <label key={industry} className="dropdown-checkbox-label">
+                    <input 
+                      type="checkbox" 
+                      checked={filters.industrySector.includes(industry)}
+                      onChange={() => handleCheckboxChange('industrySector', industry)}
+                    />
+                    {industry}
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="dropdown-container" style={{ marginLeft: 'auto' }}>
+             <button className="dropdown-button" style={{ border: 'none', background: 'transparent' }}>
+              Sort: Top Matches
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+          </div>
+          
+          {hasActiveFilters && (
+            <button className="clear-all-btn" onClick={clearAllFilters}>
+              Clear all
+            </button>
+          )}
         </div>
 
-        <div className="inv-filter-group">
-          <h4>Status</h4>
-          <label className="inv-checkbox-label">
-            <input type="radio" name="projectReadinessLevel" value="Idea" checked={filters.projectReadinessLevel === 'Idea'} onChange={handleFilterChange} />
-            Idea
-          </label>
-          <label className="inv-checkbox-label">
-            <input type="radio" name="projectReadinessLevel" value="Prototype" checked={filters.projectReadinessLevel === 'Prototype'} onChange={handleFilterChange} />
-            Prototype
-          </label>
-          <label className="inv-checkbox-label">
-            <input type="radio" name="projectReadinessLevel" value="MVP" checked={filters.projectReadinessLevel === 'MVP'} onChange={handleFilterChange} />
-            MVP
-          </label>
-          <label className="inv-checkbox-label">
-            <input type="radio" name="projectReadinessLevel" value="Completed" checked={filters.projectReadinessLevel === 'Completed'} onChange={handleFilterChange} />
-            Completed
-          </label>
-        </div>
-
-        <div className="inv-filter-group">
-          <h4>Industry</h4>
-          <label className="inv-checkbox-label">
-            <input type="radio" name="industrySector" value="Healthcare" checked={filters.industrySector === 'Healthcare'} onChange={handleFilterChange} />
-            Healthcare
-          </label>
-          <label className="inv-checkbox-label">
-            <input type="radio" name="industrySector" value="Fintech" checked={filters.industrySector === 'Fintech'} onChange={handleFilterChange} />
-            Fintech
-          </label>
-          <label className="inv-checkbox-label">
-            <input type="radio" name="industrySector" value="EdTech" checked={filters.industrySector === 'EdTech'} onChange={handleFilterChange} />
-            EdTech
-          </label>
-          <label className="inv-checkbox-label">
-            <input type="radio" name="industrySector" value="AI" checked={filters.industrySector === 'AI'} onChange={handleFilterChange} />
-            AI / Machine Learning
-          </label>
-        </div>
-      </aside>
+        {/* Active Filter Chips */}
+        {hasActiveFilters && (
+          <div className="filter-chip-container">
+            {filters.projectReadinessLevel.map(status => (
+              <div key={`chip-status-${status}`} className="filter-chip">
+                {status}
+                <button onClick={() => removeFilter('projectReadinessLevel', status)}>✕</button>
+              </div>
+            ))}
+            {filters.industrySector.map(industry => (
+              <div key={`chip-industry-${industry}`} className="filter-chip">
+                {industry}
+                <button onClick={() => removeFilter('industrySector', industry)}>✕</button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Projects List */}
       <div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
           <h2 style={{ fontSize: '1.25rem', fontWeight: 600 }}>{projects.length} results for your matching</h2>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span style={{ fontSize: '0.9rem', color: '#6b7280' }}>Sort by:</span>
-            <select style={{ padding: '0.5rem', borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none' }}>
-              <option>Top Matches</option>
-              <option>Newest</option>
-            </select>
-          </div>
         </div>
 
         {isLoading ? (
           <p style={{ color: '#6b7280' }}>Loading projects...</p>
         ) : projects.length === 0 ? (
-          <p style={{ color: '#6b7280' }}>No projects match these filters.</p>
+          <div style={{ textAlign: 'center', padding: '4rem 2rem', background: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '12px' }}>
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" style={{ margin: '0 auto 1rem', color: 'var(--text-muted)' }}>
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <h3 className="text-mid" style={{ color: 'white', marginBottom: '0.5rem' }}>No projects found</h3>
+            <p style={{ color: 'var(--text-muted)' }}>Try adjusting your search or filters.</p>
+          </div>
         ) : (
           <div className="inv-projects-list-container">
             {projects.map((project, index) => (
               <div key={project._id} className="inv-list-item">
-                <div className={`inv-project-icon-box ${getIconColorClass(index)}`} style={{ marginBottom: 0 }}>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none">
-                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path>
-                  </svg>
+                <div className={`inv-project-icon-box ${getIconColorClass(index)}`} style={{ marginBottom: 0, fontSize: '1.25rem', fontWeight: 'bold' }}>
+                  {project.title ? project.title.charAt(0).toUpperCase() : 'P'}
                 </div>
                 
                 <div className="inv-list-item-content">

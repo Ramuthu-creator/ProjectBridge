@@ -1,7 +1,26 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { requestMeeting } from '../../services/api';
 
 const ProjectDetails = ({ project, onClose, isSaved, onToggleSave }) => {
+  const [meetingRequested, setMeetingRequested] = useState(false);
+  const [isRequesting, setIsRequesting] = useState(false);
+
   if (!project) return null;
+
+  const handleRequestMeeting = async () => {
+    try {
+      setIsRequesting(true);
+      const token = localStorage.getItem('token');
+      await requestMeeting(project._id, token);
+      setMeetingRequested(true);
+      alert('Meeting requested successfully!');
+    } catch (error) {
+      console.error('Error requesting meeting:', error);
+      alert(error.message || 'Failed to request meeting');
+    } finally {
+      setIsRequesting(false);
+    }
+  };
 
   return (
     <div className="inv-detail-overlay" onClick={onClose}>
@@ -33,8 +52,18 @@ const ProjectDetails = ({ project, onClose, isSaved, onToggleSave }) => {
                 <svg width="20" height="20" viewBox="0 0 24 24" fill={isSaved ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
                 {isSaved ? 'Saved' : 'Save'}
               </button>
-              <button className="inv-btn-primary" style={{ padding: '0.75rem 1.5rem', fontSize: '1rem' }}>
-                Request meeting
+              <button 
+                className="inv-btn-primary" 
+                style={{ 
+                  padding: '0.75rem 1.5rem', 
+                  fontSize: '1rem',
+                  opacity: (meetingRequested || isRequesting) ? 0.7 : 1,
+                  cursor: (meetingRequested || isRequesting) ? 'not-allowed' : 'pointer'
+                }}
+                onClick={handleRequestMeeting}
+                disabled={meetingRequested || isRequesting}
+              >
+                {isRequesting ? 'Requesting...' : meetingRequested ? 'Meeting Requested' : 'Request meeting'}
               </button>
             </div>
           </div>
@@ -48,12 +77,6 @@ const ProjectDetails = ({ project, onClose, isSaved, onToggleSave }) => {
             <h3 className="inv-section-title">About the project</h3>
             <p className="inv-detail-text">
               {project.description}
-            </p>
-
-            <h3 className="inv-section-title">Target market</h3>
-            <p className="inv-detail-text">
-              This solution is primarily targeted at the {project.industrySector} industry, specifically addressing inefficiencies and improving access for target demographics. 
-              The technology stack utilizes {project.technologyStack?.join(', ') || 'modern tools'} to ensure scalability and robust performance across different regions.
             </p>
 
             <h3 className="inv-section-title">Pitch video</h3>
@@ -80,25 +103,45 @@ const ProjectDetails = ({ project, onClose, isSaved, onToggleSave }) => {
               <h3 className="inv-section-title" style={{ color: '#34d399' }}>Project Stage</h3>
               <div className="inv-metric" style={{ marginBottom: 0 }}>
                 <div className="inv-metric-value" style={{ color: '#10b981' }}>{project.projectReadinessLevel}</div>
-                <div className="inv-metric-label" style={{ color: '#6ee7b7' }}>Currently looking for seed investment</div>
               </div>
             </div>
 
-            <div className="inv-side-panel">
-              <h3 className="inv-section-title">Financials</h3>
-              <div className="inv-metric">
-                <div className="inv-metric-label">Funding sought</div>
-                <div className="inv-metric-value">$250,000</div>
+            {project.technologyStack && project.technologyStack.length > 0 && (
+              <div className="inv-side-panel" style={{ marginBottom: '1.5rem' }}>
+                <h3 className="inv-section-title">Technology Stack</h3>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                  {project.technologyStack.map((tech, index) => (
+                    <span key={index} style={{ background: 'rgba(255,255,255,0.05)', padding: '0.25rem 0.75rem', borderRadius: '50px', fontSize: '0.85rem', color: '#d1d5db', border: '1px solid rgba(255,255,255,0.1)' }}>
+                      {tech}
+                    </span>
+                  ))}
+                </div>
               </div>
-              <div className="inv-metric">
-                <div className="inv-metric-label">Valuation cap</div>
-                <div className="inv-metric-value">$2,000,000</div>
+            )}
+            
+            {project.studentId && (
+               <div className="inv-side-panel">
+                <h3 className="inv-section-title">Student Info</h3>
+                {project.studentId.university && (
+                  <div className="inv-metric">
+                    <div className="inv-metric-label">University</div>
+                    <div className="inv-metric-value" style={{ fontSize: '1rem', color: 'white' }}>{project.studentId.university}</div>
+                  </div>
+                )}
+                {project.studentId.degreeProgram && (
+                  <div className="inv-metric">
+                    <div className="inv-metric-label">Degree Program</div>
+                    <div className="inv-metric-value" style={{ fontSize: '1rem', color: 'white' }}>{project.studentId.degreeProgram}</div>
+                  </div>
+                )}
+                {project.studentId.graduationYear && (
+                  <div className="inv-metric" style={{ marginBottom: 0 }}>
+                    <div className="inv-metric-label">Graduation Year</div>
+                    <div className="inv-metric-value" style={{ fontSize: '1rem', color: 'white' }}>{project.studentId.graduationYear}</div>
+                  </div>
+                )}
               </div>
-              <div className="inv-metric" style={{ marginBottom: 0 }}>
-                <div className="inv-metric-label">Equity offered</div>
-                <div className="inv-metric-value">12.5%</div>
-              </div>
-            </div>
+            )}
           </div>
 
         </div>

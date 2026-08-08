@@ -3,6 +3,16 @@ import React, { useState } from 'react';
 const DiscoverProjects = ({ projects, isLoading, onViewDetails, savedProjectIds, onToggleSave }) => {
   const [activeFilter, setActiveFilter] = useState('All');
 
+  // Dynamic Statistics Calculations
+  const totalProjects = projects.length;
+  const savedProjectsCount = savedProjectIds ? savedProjectIds.size : 0;
+  
+  const oneWeekAgo = new Date();
+  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+  const newThisWeekCount = projects.filter(p => p.uploadTimestamp && new Date(p.uploadTimestamp) >= oneWeekAgo).length;
+  
+  const activeSectorsCount = new Set(projects.map(p => p.industrySector).filter(Boolean)).size;
+
   const getStatusColorClass = (status) => {
     switch(status) {
       case 'Idea': return 'status-idea';
@@ -26,21 +36,41 @@ const DiscoverProjects = ({ projects, isLoading, onViewDetails, savedProjectIds,
 
       {/* Stats Grid */}
       <div className="inv-stats-grid">
-        <div className="inv-stat-card primary">
-          <h3>{projects.length}</h3>
-          <p>Total projects</p>
+        <div className="inv-stat-card">
+          <div>
+            <h3 className="text-mid" style={{ color: 'var(--text-muted)' }}>Total projects</h3>
+            <p>{totalProjects}</p>
+          </div>
+          <div className="inv-project-icon-box blue" style={{ width: '32px', height: '32px', margin: 0, borderRadius: '8px' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+          </div>
         </div>
         <div className="inv-stat-card">
-          <h3>15</h3>
-          <p>Saved projects</p>
+          <div>
+            <h3 className="text-mid" style={{ color: 'var(--text-muted)' }}>Saved projects</h3>
+            <p>{savedProjectsCount}</p>
+          </div>
+          <div className="inv-project-icon-box pink" style={{ width: '32px', height: '32px', margin: 0, borderRadius: '8px' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+          </div>
         </div>
         <div className="inv-stat-card">
-          <h3>2</h3>
-          <p>Projects funded</p>
+          <div>
+            <h3 className="text-mid" style={{ color: 'var(--text-muted)' }}>Active Sectors</h3>
+            <p>{activeSectorsCount}</p>
+          </div>
+          <div className="inv-project-icon-box orange" style={{ width: '32px', height: '32px', margin: 0, borderRadius: '8px' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          </div>
         </div>
         <div className="inv-stat-card">
-          <h3>10</h3>
-          <p>New this week</p>
+          <div>
+            <h3 className="text-mid" style={{ color: 'var(--text-muted)' }}>New this week</h3>
+            <p>{newThisWeekCount}</p>
+          </div>
+          <div className="inv-project-icon-box green" style={{ width: '32px', height: '32px', margin: 0, borderRadius: '8px' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+          </div>
         </div>
       </div>
 
@@ -65,7 +95,7 @@ const DiscoverProjects = ({ projects, isLoading, onViewDetails, savedProjectIds,
         >
           Newest
         </button>
-        <button className="inv-filter-btn" style={{ marginLeft: 'auto' }}>
+        <button className="inv-filter-btn" style={{ marginLeft: 'auto', position: 'relative' }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
           Filters
         </button>
@@ -75,15 +105,20 @@ const DiscoverProjects = ({ projects, isLoading, onViewDetails, savedProjectIds,
       {isLoading ? (
         <p style={{ color: '#6b7280' }}>Loading projects...</p>
       ) : projects.length === 0 ? (
-        <p style={{ color: '#6b7280' }}>No projects available right now.</p>
+          <div style={{ textAlign: 'center', padding: '4rem 2rem', background: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '12px' }}>
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" style={{ margin: '0 auto 1rem', color: 'var(--text-muted)' }}>
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <h3 className="text-mid" style={{ color: 'white', marginBottom: '0.5rem' }}>No projects found</h3>
+            <p style={{ color: 'var(--text-muted)' }}>Try adjusting your search or filters.</p>
+          </div>
       ) : (
         <div className="inv-projects-grid">
           {projects.map((project, index) => (
             <div key={project._id} className="inv-project-card">
-              <div className={`inv-project-icon-box ${getIconColorClass(index)}`}>
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" stroke="none">
-                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path>
-                </svg>
+              <div className={`inv-project-icon-box ${getIconColorClass(index)}`} style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>
+                {project.title ? project.title.charAt(0).toUpperCase() : 'P'}
               </div>
               
               <h4>{project.title}</h4>
