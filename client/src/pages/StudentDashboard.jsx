@@ -6,6 +6,7 @@ import { uploadProject, getMyProjects, deleteProject } from '../services/api';
 import DashboardOverview from '../components/student/DashboardOverview';
 import UploadProjectForm from '../components/student/UploadProjectForm';
 import StudentProfile from '../components/student/StudentProfile';
+import MeetingRequests from '../components/student/MeetingRequests';
 import '../components/student/student.css'; // Import the new layout styles
 
 const StudentDashboard = () => {
@@ -179,6 +180,8 @@ const StudentDashboard = () => {
         return <UploadProjectForm onSubmit={handleUploadProject} isLoading={isUploading} />;
       case 'profile':
         return <StudentProfile studentName={studentName} email={studentEmail} />;
+      case 'meetings':
+        return <MeetingRequests />;
       default:
         return (
           <DashboardOverview 
@@ -246,6 +249,20 @@ const StudentDashboard = () => {
             My Profile
           </div>
 
+          <div 
+            className={`nav-item ${activeTab === 'meetings' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('meetings'); setIpProof(null); }}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+            Meeting Requests
+          </div>
+
           <div className="nav-item logout" onClick={handleLogout}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
@@ -265,12 +282,24 @@ const StudentDashboard = () => {
             {activeTab === 'upload' && !ipProof && 'Upload Project'}
             {activeTab === 'upload' && ipProof && 'Project Secured'}
             {activeTab === 'profile' && 'My Profile'}
+            {activeTab === 'meetings' && 'Meeting Requests'}
           </h1>
-          <div className="user-indicator" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'white', padding: '0.5rem 1rem', borderRadius: '50px', border: '1px solid #f3f4f6', boxShadow: '0 2px 5px rgba(0,0,0,0.02)' }}>
-            <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#e0e7ff', color: '#4f46e5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
-              {studentName.charAt(0).toUpperCase()}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+            {activeTab === 'dashboard' && (
+              <button className="btn-new-project" onClick={() => setActiveTab('upload')}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Submit Project
+              </button>
+            )}
+            <div className="user-indicator">
+              <div className="user-indicator-avatar">
+                {studentName.charAt(0).toUpperCase()}
+              </div>
+              <span>{studentName}</span>
             </div>
-            <span style={{ fontWeight: '500', color: '#374151' }}>{studentName}</span>
           </div>
         </header>
 

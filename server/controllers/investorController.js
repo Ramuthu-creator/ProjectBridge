@@ -1,4 +1,6 @@
 const Investor = require('../models/Investor');
+const Project = require('../models/Project');
+const MeetingRequest = require('../models/MeetingRequest');
 
 exports.getProfile = async (req, res) => {
   try {
@@ -92,5 +94,37 @@ exports.getSavedProjects = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error fetching saved projects' });
+  }
+};
+
+exports.requestMeeting = async (req, res) => {
+  try {
+    const projectId = req.params.projectId;
+    const investorId = req.user.id;
+    
+    // Check if project exists to get studentId
+    const project = await Project.findById(projectId);
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+    
+    // Check for existing request
+    const existingRequest = await MeetingRequest.findOne({ projectId, investorId });
+    if (existingRequest) {
+      return res.status(400).json({ message: 'Meeting already requested for this project' });
+    }
+    
+    const meetingRequest = new MeetingRequest({
+      projectId,
+      investorId,
+      studentId: project.studentId
+    });
+    
+    await meetingRequest.save();
+    
+    res.status(201).json({ message: 'Meeting requested successfully', meetingRequest });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error requesting meeting' });
   }
 };

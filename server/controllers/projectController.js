@@ -85,10 +85,10 @@ exports.getAllProjects = async (req, res) => {
     // Build filter query
     let query = {};
     if (industrySector) {
-      query.industrySector = industrySector;
+      query.industrySector = { $in: industrySector.split(',') };
     }
     if (projectReadinessLevel) {
-      query.projectReadinessLevel = projectReadinessLevel;
+      query.projectReadinessLevel = { $in: projectReadinessLevel.split(',') };
     }
 
     // Populate student info for all projects
