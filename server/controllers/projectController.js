@@ -1,24 +1,11 @@
 const crypto = require('crypto');
-const jwt = require('jsonwebtoken');
 const Project = require('../models/Project');
 
 exports.uploadProject = async (req, res) => {
   try {
     const { title, description, industrySector, technologyStack, projectReadinessLevel } = req.body;
 
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ message: 'Unauthorized' });
-    }
-    const token = authHeader.split(' ')[1];
-    const secret = process.env.JWT_SECRET || 'your_temporary_jwt_secret_key';
-    const decoded = jwt.verify(token, secret);
-    
-    if (!decoded.user || !decoded.user.id) {
-      return res.status(401).json({ message: 'Invalid token' });
-    }
-    
-    const studentId = decoded.user.id;
+    const studentId = req.user.id;
 
     if (!title || !description || !studentId || !industrySector || !projectReadinessLevel) {
       return res.status(400).json({ message: 'Missing required fields' });
@@ -53,9 +40,6 @@ exports.uploadProject = async (req, res) => {
 
   } catch (error) {
     console.error(error);
-    if (error.name === 'JsonWebTokenError') {
-      return res.status(401).json({ message: 'Invalid token' });
-    }
     res.status(500).json({ message: 'Server error during project upload' });
   }
 };
@@ -84,27 +68,12 @@ exports.getMatchedProjects = async (req, res) => {
 
 exports.getMyProjects = async (req, res) => {
   try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ message: 'Unauthorized' });
-    }
-    const token = authHeader.split(' ')[1];
-    const secret = process.env.JWT_SECRET || 'your_temporary_jwt_secret_key';
-    const decoded = jwt.verify(token, secret);
-    
-    if (!decoded.user || !decoded.user.id) {
-      return res.status(401).json({ message: 'Invalid token' });
-    }
-
-    const studentId = decoded.user.id;
+    const studentId = req.user.id;
     const projects = await Project.find({ studentId }).sort({ uploadTimestamp: -1 });
     
     res.status(200).json(projects);
   } catch (error) {
     console.error(error);
-    if (error.name === 'JsonWebTokenError') {
-      return res.status(401).json({ message: 'Invalid token' });
-    }
     res.status(500).json({ message: 'Server error while fetching my projects' });
   }
 };
@@ -136,19 +105,7 @@ exports.getAllProjects = async (req, res) => {
 
 exports.deleteProject = async (req, res) => {
   try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ message: 'Unauthorized' });
-    }
-    const token = authHeader.split(' ')[1];
-    const secret = process.env.JWT_SECRET || 'your_temporary_jwt_secret_key';
-    const decoded = jwt.verify(token, secret);
-    
-    if (!decoded.user || !decoded.user.id) {
-      return res.status(401).json({ message: 'Invalid token' });
-    }
-
-    const studentId = decoded.user.id;
+    const studentId = req.user.id;
     const projectId = req.params.id;
 
     const project = await Project.findOneAndDelete({ _id: projectId, studentId: studentId });
@@ -159,9 +116,6 @@ exports.deleteProject = async (req, res) => {
     res.status(200).json({ message: 'Project deleted successfully' });
   } catch (error) {
     console.error(error);
-    if (error.name === 'JsonWebTokenError') {
-      return res.status(401).json({ message: 'Invalid token' });
-    }
     res.status(500).json({ message: 'Server error during project deletion' });
   }
 };
