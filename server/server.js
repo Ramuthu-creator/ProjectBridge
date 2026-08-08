@@ -23,8 +23,7 @@ app.use('/api/projects', projectRoutes);
 app.use('/api/student', studentRoutes);
 app.use('/api/investors', investorRoutes);
 
-// Static file serving for uploads (videos, etc)
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Static file serving removed as files are on Cloudinary
 
 // Database Connection
 const PORT = process.env.PORT || 5000;
@@ -37,10 +36,15 @@ mongoose.connect(MONGO_URI, {
 })
   .then(() => {
     console.log('Connected to MongoDB successfully');
-    app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
-    });
+    // Only listen if not running on Vercel
+    if (process.env.NODE_ENV !== 'production') {
+      app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
+      });
+    }
   })
   .catch((error) => {
     console.error('Error connecting to MongoDB:', error.message);
   });
+
+module.exports = app;

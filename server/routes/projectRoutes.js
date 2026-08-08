@@ -1,37 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const projectController = require('../controllers/projectController');
-const multer = require('multer');
 const path = require('path');
-const fs = require('fs');
 const authMiddleware = require('../middleware/authMiddleware');
 
-// Ensure uploads directory exists
-const uploadDir = path.join(__dirname, '..', 'uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir);
-}
+// No local upload directory needed anymore for Vercel
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, uploadDir);
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
-  }
-});
-
-const upload = multer({ 
-  storage: storage,
-  limits: { fileSize: 50 * 1024 * 1024 } // 50MB limit
-});
-
-// Protect all routes with authMiddleware
+// Protected routes below
 router.use(authMiddleware);
 
 // Upload a new project (Student)
-router.post('/upload', upload.single('demoVideo'), projectController.uploadProject);
+router.post('/upload', projectController.uploadProject);
 
 // Get matched projects based on preferences (Investor)
 router.post('/match', projectController.getMatchedProjects);
