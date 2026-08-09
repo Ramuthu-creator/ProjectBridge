@@ -153,7 +153,7 @@ const Home = () => {
               <div className="section-header fade-in-up">
                   <h2>Two paths. <span className="gradient-text">One Ecosystem.</span></h2>
               </div>
-              <div className="feature-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))' }}>
+              <div className="feature-grid solutions-grid">
                   <div className="feature-card glass-panel fade-in-up delay-1" style={{ borderTop: '4px solid #6366f1' }}>
                       <h3 style={{ fontSize: '1.8rem', marginBottom: '1rem' }}>For Students 🎓</h3>
                       <p style={{ marginBottom: '1rem', fontSize: '1.1rem' }}>Stop waiting until graduation to get your ideas funded. Bypass traditional gatekeepers and get your MVP directly in front of vetted angel investors.</p>
