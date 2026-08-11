@@ -284,7 +284,7 @@ const StudentDashboard = () => {
             {activeTab === 'profile' && 'My Profile'}
             {activeTab === 'meetings' && 'Meeting Requests'}
           </h1>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+          <div className="dashboard-header-actions">
             {activeTab === 'dashboard' && (
               <button className="btn-new-project" onClick={() => setActiveTab('upload')}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

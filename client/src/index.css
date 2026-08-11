@@ -688,6 +688,23 @@ footer {
     margin-bottom: 1.5rem;
 }
 
+@media (max-width: 768px) {
+    .filter-dropdown-row {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+        -webkit-overflow-scrolling: touch;
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    .filter-dropdown-row::-webkit-scrollbar {
+        display: none;
+    }
+    .dropdown-container {
+        flex-shrink: 0;
+    }
+}
+
 .dropdown-container {
     position: relative;
 }
