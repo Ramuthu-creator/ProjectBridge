@@ -456,6 +456,12 @@ select.form-input option {
   font-size: 0.9rem;
 }
 
+.dashboard-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
 /* Profile Tab */
 .profile-header {
   padding: 2.5rem;
@@ -624,11 +630,18 @@ select.form-input option {
     overflow-x: auto;
     padding-bottom: 0.5rem;
     -webkit-overflow-scrolling: touch;
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+  
+  .sidebar-nav::-webkit-scrollbar {
+    display: none;
   }
   
   .nav-item {
     white-space: nowrap;
     padding: 0.5rem 1rem;
+    flex-shrink: 0;
   }
   
   .nav-item.logout {
@@ -650,6 +663,12 @@ select.form-input option {
   
   .dashboard-header h1 {
     font-size: 1.5rem;
+  }
+  
+  .dashboard-header-actions {
+    width: 100%;
+    justify-content: space-between;
+    flex-wrap: wrap;
   }
   
   .profile-header {

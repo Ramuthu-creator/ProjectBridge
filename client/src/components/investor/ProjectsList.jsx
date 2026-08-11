@@ -187,7 +187,7 @@ const ProjectsList = ({ projects, isLoading, onApplyFilters, onViewDetails, save
                   <p>{project.description?.substring(0, 120)}...</p>
                 </div>
                 
-                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                <div className="inv-list-item-actions">
                   <button 
                     className="inv-btn-outline" 
                     style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '40px', height: '40px', padding: 0, ...(savedProjectIds.has(project._id) ? { background: 'rgba(99, 102, 241, 0.2)', borderColor: '#6366f1', color: 'white' } : {}) }}
